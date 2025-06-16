@@ -1,7 +1,7 @@
 package com.gideon.knowmate.Security;
 
 import com.gideon.knowmate.Entity.User;
-import com.gideon.knowmate.Entity.UserDomain;
+import com.gideon.knowmate.Enum.UserDomain;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
 import com.gideon.knowmate.Exceptions.ExpiredAuthTokenException;
 import com.gideon.knowmate.Exceptions.InvalidAuthTokenException;
@@ -64,7 +64,7 @@ public class JwtService {
             UserDetails userDetails
     ) {
 
-        Long id;
+        String id;
         String userRole = "";
 
             Optional<User> userOptional = userRepo.findByEmail(userDetails.getUsername());

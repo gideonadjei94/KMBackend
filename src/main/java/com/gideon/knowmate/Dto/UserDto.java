@@ -1,10 +1,10 @@
 package com.gideon.knowmate.Dto;
 
 
-import com.gideon.knowmate.Entity.UserDomain;
+import com.gideon.knowmate.Enum.UserDomain;
 
 public record UserDto(
-        Long id,
+        String id,
         String username,
         String email,
         UserDomain userRole

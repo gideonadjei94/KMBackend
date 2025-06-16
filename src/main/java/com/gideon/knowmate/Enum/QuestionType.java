@@ -1,4 +1,4 @@
-package com.gideon.knowmate.Entity;
+package com.gideon.knowmate.Enum;
 
 public enum QuestionType {
     MCQ,

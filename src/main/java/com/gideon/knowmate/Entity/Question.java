@@ -1,15 +1,15 @@
 package com.gideon.knowmate.Entity;
 
+import com.gideon.knowmate.Enum.QuestionType;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document
 public class Question {
 
-    private Long id;
+    private String id;
 
-    private QuestionType type = QuestionType.MCQ;
+    private QuestionType type;
 
     private String questionStatement;
 
