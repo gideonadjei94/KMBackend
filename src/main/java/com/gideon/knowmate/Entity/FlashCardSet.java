@@ -34,13 +34,13 @@ public class FlashCardSet {
 
     private List<FlashCard> flashCardList;
 
-    private Long likes;
+    private List<String> likeBy;
 
-    private Long views;
+    private List<String> viewedBy;
 
-    private Long saves;
+    private List<String> savedBy;
 
-    private Long shares;
+    private List<String> sharedBy;
 
     @CreatedDate
     private Date createdAt;

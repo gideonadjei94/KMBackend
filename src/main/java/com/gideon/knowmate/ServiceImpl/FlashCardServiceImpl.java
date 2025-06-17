@@ -9,6 +9,7 @@ import com.gideon.knowmate.Exceptions.EntityNotFoundException;
 import com.gideon.knowmate.Mappers.FlashCardSetMapper;
 import com.gideon.knowmate.Repository.FlashCardSetRepository;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
+import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
 import com.gideon.knowmate.Service.FlashCardService;
 import com.gideon.knowmate.Utils.UtilityFunctions;
 import lombok.RequiredArgsConstructor;
@@ -108,5 +109,45 @@ public class FlashCardServiceImpl implements FlashCardService {
         }
 
         throw new EntityNotFoundException("FlashCardSet not Found");
+    }
+
+    @Override
+    public void deleteFlashCardSet(String setId) {
+        Optional<FlashCardSet> set = flashCardSetRepository.findById(setId);
+        if (set.isPresent()){
+            flashCardSetRepository.deleteById(setId);
+        }
+
+        throw new EntityNotFoundException("FlashCardSet not found");
+    }
+
+    @Override
+    public FlashCardSetDto updateFlashCardSet(String setId, UpdateFlashCardSetRequest request) {
+        FlashCardSet existingSet = flashCardSetRepository.findById(setId)
+                .orElseThrow(() -> new EntityNotFoundException("FlashCardSet not found"));
+
+        if (request.title() != null && !request.title().isBlank()) {
+            existingSet.setTitle(request.title());
+        }
+
+        if (request.description() != null && !request.description().isBlank()) {
+            existingSet.setDescription(request.description());
+        }
+
+        if (request.subjectDomain() != null) {
+            existingSet.setSubjectDomain(request.subjectDomain());
+        }
+
+        if (request.course() != null && !request.course().isBlank()) {
+            existingSet.setCourse(request.course());
+        }
+
+        if (request.flashCardList() != null) {
+            existingSet.setFlashCardList(request.flashCardList());
+        }
+
+        flashCardSetRepository.save(existingSet);
+
+        return flashCardSetMapper.apply(existingSet);
     }
 }

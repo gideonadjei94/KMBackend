@@ -34,13 +34,35 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(message);
     }
 
-    @Override
-    public void sendWelcomeEmail() {
 
+    @Override
+    public void sendWelcomeEmail(String email, String username) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(email);
+        helper.setSubject("Welcome!");
+
+        Context context = new Context();
+        context.setVariable("username", username);
+        String htmlContent = templateEngine.process("Welcome", context);
+
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
     }
 
-    @Override
-    public void sendPasswordReset() {
 
+    @Override
+    public void sendPasswordReset(String email, String OTP) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(email);
+        helper.setSubject("Reset Password");
+
+        Context context = new Context();
+        context.setVariable("OTP", OTP);
+        String htmlContent = templateEngine.process("ResetPassword", context);
+
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
     }
 }

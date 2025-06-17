@@ -4,6 +4,7 @@ package com.gideon.knowmate.Controller;
 import com.gideon.knowmate.Dto.FlashCardSetDto;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
+import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.FlashCardService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,7 +39,7 @@ public class FlashCardSetController {
         List<FlashCardSetDto> response = service.getPopularFlashCards();
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("", response));
+                .body(new ApiResponse("Success", response));
     }
 
 
@@ -47,7 +48,7 @@ public class FlashCardSetController {
         List<FlashCardSetDto> response = service.getFlashCardsBySubject(subject);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("", response));
+                .body(new ApiResponse("Success", response));
     }
 
 
@@ -56,7 +57,7 @@ public class FlashCardSetController {
         List<FlashCardSetDto> response = service.getFlashCardByCourse(course);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("", response));
+                .body(new ApiResponse("Success", response));
     }
 
 
@@ -65,7 +66,7 @@ public class FlashCardSetController {
         List<FlashCardSetDto> response = service.getUserFlashCards(userId);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("", response));
+                .body(new ApiResponse("Success", response));
     }
 
 
@@ -74,8 +75,25 @@ public class FlashCardSetController {
         FlashCardSetDto response = service.getFlashCardSet(cardId);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("", response));
+                .body(new ApiResponse("Success", response));
     }
 
+
+    @PutMapping("/update/set/{setId}")
+    public ResponseEntity<ApiResponse> updateFlashCardSet(@RequestBody UpdateFlashCardSetRequest request, @PathVariable String setId){
+        FlashCardSetDto response = service.updateFlashCardSet(setId, request);
+        return ResponseEntity
+                .status(CREATED)
+                .body(new ApiResponse("Flashcard Updated Successfully", response));
+    }
+
+
+    @DeleteMapping("/delete-set")
+    public ResponseEntity<ApiResponse> deleteFlashCardSet(@RequestParam("setId") String setId){
+        service.deleteFlashCardSet(setId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Deleted Successfully", null));
+    }
 
 }

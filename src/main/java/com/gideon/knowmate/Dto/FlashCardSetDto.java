@@ -14,10 +14,10 @@ public record FlashCardSetDto(
         SubjectDomain subject,
         String course,
         List<FlashCard> flashCardList,
-        Long likes,
-        Long views,
-        Long saves,
-        Long shares,
+        List<String> likedBy,
+        List<String> viewedBy,
+        List<String> savedBy,
+        List<String> sharedBy,
         Date lastDateModified,
         Date createAt
 ) {

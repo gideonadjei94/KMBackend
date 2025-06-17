@@ -9,8 +9,9 @@ import jakarta.mail.MessagingException;
 
 public interface AuthService {
     void register(RegisterUserRequest request) throws MessagingException;
-
     AuthenticationResponse verifyUserEmailAndRegister(String email, String code);
-
     AuthenticationResponse authenticate(LoginUserRequest request);
+    void resetPassword(String email) throws MessagingException;
+    boolean verifyResetPasswordOTP(String email, String code);
+    void setNewPassword(String email, String newPassword);
 }

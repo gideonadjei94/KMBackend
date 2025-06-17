@@ -37,9 +37,6 @@ public class User implements UserDetails{
 
     private UserDomain userRole;
 
-    @DBRef
-    private List<Quiz> quizzes;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> roles = new ArrayList<>();

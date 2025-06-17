@@ -1,0 +1,12 @@
+package com.gideon.knowmate.Enum;
+
+public enum AchievementType {
+    FIRST_FLASHCARD_CREATED,
+    FIRST_QUIZ_CREATED,
+    TEN_FLASHCARDS_CREATED,
+    TEN_QUIZZES_CREATED,
+    HUNDRED_FLASHCARDS_VIEWS,
+    HUNDRED_QUIZ_ATTEMPTS,
+    WEEKLY_STREAK,
+    EARLY_ADOPTER
+}

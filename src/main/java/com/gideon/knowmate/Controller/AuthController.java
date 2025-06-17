@@ -3,6 +3,7 @@ package com.gideon.knowmate.Controller;
 import com.gideon.knowmate.Requests.EmailVerificationSubmit;
 import com.gideon.knowmate.Requests.LoginUserRequest;
 import com.gideon.knowmate.Requests.RegisterUserRequest;
+import com.gideon.knowmate.Requests.SetNewPasswordRequest;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Response.AuthenticationResponse;
 import com.gideon.knowmate.Service.AuthService;
@@ -48,5 +49,37 @@ public class AuthController {
                     .status(OK)
                     .body(new ApiResponse("Login Successful", response));
 
+    }
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws MessagingException {
+        authService.resetPassword(email);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Password reset OTP sent successfully", null));
+    }
+
+
+    @PostMapping("/verify-reset-password-OTP")
+    public ResponseEntity<ApiResponse> verifyResetPasswordOTP(@RequestParam("email") String email, @RequestBody EmailVerificationSubmit submit ){
+        boolean response = authService.verifyResetPasswordOTP(email, submit.code());
+        if (response){
+            return ResponseEntity
+                    .status(OK)
+                    .body(new ApiResponse("",null));
+        }
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(new ApiResponse("Verification failed. Please try again", null));
+    }
+
+
+    @PostMapping("/set-new-password")
+    public ResponseEntity<ApiResponse> setNewPassword(@RequestParam("email") String email, @RequestBody SetNewPasswordRequest request){
+        authService.setNewPassword(email, request.newPassword());
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("New Password Set Successfully", null));
     }
 }

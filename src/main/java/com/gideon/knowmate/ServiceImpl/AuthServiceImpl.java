@@ -66,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
+
     @Override
     @Transactional
     public AuthenticationResponse verifyUserEmailAndRegister(String email, String code){
@@ -85,14 +86,12 @@ public class AuthServiceImpl implements AuthService {
             otpVerificationSessRepo.deleteByEmail(session.getEmail());
             return new AuthenticationResponse(
                   jwtToken,
-                  newUser
+                  newUser.getId()
             );
         }
 
         throw new SessionExpiredException("Verification failed. Please try Again");
     }
-
-
 
 
 
@@ -113,8 +112,52 @@ public class AuthServiceImpl implements AuthService {
 
             return new AuthenticationResponse(
                     jwtToken,
-                    existingUser
+                    existingUser.getId()
             );
+        }
+
+        throw new EntityNotFoundException("User not found");
+    }
+
+
+
+    @Override
+    public void resetPassword(String email) throws MessagingException {
+       boolean emailExists = userRepo.existsByEmail(email);
+       if(emailExists){
+          String OTP = UtilityFunctions.generateOTP();
+          emailService.sendPasswordReset(email, new String(Base64.getDecoder().decode(OTP)));
+          var newSession = OTPVerificationSess.builder()
+                  .code(OTP)
+                  .email(email)
+                  .requestedTime(LocalDateTime.now())
+                  .expirationTime(LocalDateTime.now().plusMinutes(10))
+                  .build();
+
+          otpVerificationSessRepo.save(newSession);
+       }
+
+       throw new EntityNotFoundException("Email does not exist");
+    }
+
+    @Override
+    public boolean verifyResetPasswordOTP(String email, String code) {
+        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes());
+        Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmailAndCode(email, encodedOTP);
+        if(emailVerificationSession.isPresent() && emailVerificationSession.get().getExpirationTime().isAfter(LocalDateTime.now())){
+           return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void setNewPassword(String email, String newPassword) {
+        Optional<User> user = userRepo.findByEmail(email);
+        if (user.isPresent()){
+            User existingUser = user.get();
+            existingUser.setPassword(passwordEncoder.encode(newPassword));
+            userRepo.save(existingUser);
         }
 
         throw new EntityNotFoundException("User not found");
