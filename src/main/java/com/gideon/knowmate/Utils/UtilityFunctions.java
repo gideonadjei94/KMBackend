@@ -15,10 +15,10 @@ public class UtilityFunctions {
     }
 
     public static long calculatePopularityScore(FlashCardSet set) {
-        long likes = set.getLikes() != null ? set.getLikes() : 0;
-        long views = set.getViews() != null ? set.getViews() : 0;
-        long saves = set.getSaves() != null ? set.getSaves() : 0;
-        long shares = set.getShares() != null ? set.getShares() : 0;
+        long likes = !set.getLikeBy().isEmpty() ? set.getLikeBy().size() : 0;
+        long views = !set.getViewedBy().isEmpty() ? set.getViewedBy().size() : 0;
+        long saves = !set.getSavedBy().isEmpty() ? set.getSavedBy().size() : 0;
+        long shares = !set.getSharedBy().isEmpty()? set.getSharedBy().size() : 0;
 
         return (likes * 3) + (views ) + (saves * 4) + (shares * 5);
     }
