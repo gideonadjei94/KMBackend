@@ -3,15 +3,14 @@ package com.gideon.knowmate.Utils;
 import com.gideon.knowmate.Entity.FlashCardSet;
 
 import java.security.SecureRandom;
-import java.util.Base64;
+
 
 
 public class UtilityFunctions {
 
     public static String generateOTP(){
         SecureRandom random = new SecureRandom();
-        int code = 100000 + random.nextInt(900000);
-        return Base64.getEncoder().encodeToString(String.valueOf(code).getBytes());
+        return String.valueOf(100000 + random.nextInt(900000));
     }
 
     public static long calculatePopularityScore(FlashCardSet set) {

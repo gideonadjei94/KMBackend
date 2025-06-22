@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -50,12 +51,13 @@ public class AuthServiceImpl implements AuthService {
             throw new EntityAlreadyExists("A User Already Exists with this Username");
         }
 
-        String OTP = UtilityFunctions.generateOTP();
-        emailService.sendEmailVerification(request.email(), new String(Base64.getDecoder().decode(OTP)));
+        String rawOTP = UtilityFunctions.generateOTP();
+        String encodedOTP = Base64.getEncoder().encodeToString(rawOTP.getBytes(StandardCharsets.UTF_8));
+        emailService.sendEmailVerification(request.email(), rawOTP);
        var newSession = OTPVerificationSess.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .code(OTP)
+                .code(encodedOTP)
                 .username(request.username())
                 .userRole(request.userRole())
                 .requestedTime(LocalDateTime.now())
@@ -70,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthenticationResponse verifyUserEmailAndRegister(String email, String code){
-        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes());
+        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes(StandardCharsets.UTF_8));
         Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmailAndCode(email, encodedOTP);
         if(emailVerificationSession.isPresent() && emailVerificationSession.get().getExpirationTime().isAfter(LocalDateTime.now())){
             OTPVerificationSess session = emailVerificationSession.get();
@@ -125,10 +127,11 @@ public class AuthServiceImpl implements AuthService {
     public void resetPassword(String email) throws MessagingException {
        boolean emailExists = userRepo.existsByEmail(email);
        if(emailExists){
-          String OTP = UtilityFunctions.generateOTP();
-          emailService.sendPasswordReset(email, new String(Base64.getDecoder().decode(OTP)));
+          String rawOTP = UtilityFunctions.generateOTP();
+          String encodedOTP = Base64.getEncoder().encodeToString(rawOTP.getBytes(StandardCharsets.UTF_8));
+          emailService.sendPasswordReset(email, rawOTP );
           var newSession = OTPVerificationSess.builder()
-                  .code(OTP)
+                  .code(encodedOTP)
                   .email(email)
                   .requestedTime(LocalDateTime.now())
                   .expirationTime(LocalDateTime.now().plusMinutes(10))
@@ -142,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean verifyResetPasswordOTP(String email, String code) {
-        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes());
+        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes(StandardCharsets.UTF_8));
         Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmailAndCode(email, encodedOTP);
         if(emailVerificationSession.isPresent() && emailVerificationSession.get().getExpirationTime().isAfter(LocalDateTime.now())){
            return true;
