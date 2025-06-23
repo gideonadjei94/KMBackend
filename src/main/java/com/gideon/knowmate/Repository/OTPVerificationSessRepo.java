@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface OTPVerificationSessRepo extends MongoRepository<OTPVerificationSess, String> {
-    Optional<OTPVerificationSess> findByEmailAndCode(String email, String encodedOTP);
-
     void deleteByEmail(String email);
+    Optional<OTPVerificationSess> findByEmail(String email);
 }

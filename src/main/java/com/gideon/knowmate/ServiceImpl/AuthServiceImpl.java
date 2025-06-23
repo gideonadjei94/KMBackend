@@ -52,12 +52,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String rawOTP = UtilityFunctions.generateOTP();
-        String encodedOTP = Base64.getEncoder().encodeToString(rawOTP.getBytes(StandardCharsets.UTF_8));
+        String hashedOTP = passwordEncoder.encode(rawOTP);
         emailService.sendEmailVerification(request.email(), rawOTP);
        var newSession = OTPVerificationSess.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .code(encodedOTP)
+                .code(hashedOTP)
                 .username(request.username())
                 .userRole(request.userRole())
                 .requestedTime(LocalDateTime.now())
@@ -72,25 +72,29 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthenticationResponse verifyUserEmailAndRegister(String email, String code){
-        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes(StandardCharsets.UTF_8));
-        Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmailAndCode(email, encodedOTP);
-        if(emailVerificationSession.isPresent() && emailVerificationSession.get().getExpirationTime().isAfter(LocalDateTime.now())){
+        Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmail(email);
+        if (emailVerificationSession.isPresent()) {
             OTPVerificationSess session = emailVerificationSession.get();
-            var user = User.builder()
-                    .username(session.getUsername())
-                    .email(session.getEmail())
-                    .password(session.getPassword())
-                    .userRole(session.getUserRole())
-                    .build();
 
-            User newUser = userRepo.save(user);
-            var jwtToken = jwtService.generateToken(user, session.getUserRole());
-            otpVerificationSessRepo.deleteByEmail(session.getEmail());
-            return new AuthenticationResponse(
-                  jwtToken,
-                  newUser.getId()
-            );
+            boolean validOTP = passwordEncoder.matches(code, session.getCode());
+            boolean notExpired = session.getExpirationTime().isAfter(LocalDateTime.now());
+
+            if (validOTP && notExpired) {
+                var user = User.builder()
+                        .username(session.getUsername())
+                        .email(session.getEmail())
+                        .password(session.getPassword())
+                        .userRole(session.getUserRole())
+                        .build();
+
+                User newUser = userRepo.save(user);
+                String jwtToken = jwtService.generateToken(user, session.getUserRole());
+                otpVerificationSessRepo.deleteByEmail(session.getEmail());
+
+                return new AuthenticationResponse(jwtToken, newUser.getId());
+            }
         }
+
 
         throw new SessionExpiredException("Verification failed. Please try Again");
     }
@@ -145,13 +149,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean verifyResetPasswordOTP(String email, String code) {
-        String encodedOTP = Base64.getEncoder().encodeToString(code.getBytes(StandardCharsets.UTF_8));
-        Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmailAndCode(email, encodedOTP);
-        if(emailVerificationSession.isPresent() && emailVerificationSession.get().getExpirationTime().isAfter(LocalDateTime.now())){
-           return true;
-        }
-
-        return false;
+        return otpVerificationSessRepo.findByEmail(email)
+                .filter(session -> passwordEncoder.matches(code, session.getPassword()))
+                .filter(session -> session.getExpirationTime().isAfter(LocalDateTime.now()))
+                .isPresent();
     }
 
     @Override
