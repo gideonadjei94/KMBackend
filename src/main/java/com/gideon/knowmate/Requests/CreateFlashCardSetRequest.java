@@ -7,6 +7,7 @@ import java.util.List;
 
 public record CreateFlashCardSetRequest(
         String userId,
+        String username,
         String title,
         String description,
         SubjectDomain subjectDomain,

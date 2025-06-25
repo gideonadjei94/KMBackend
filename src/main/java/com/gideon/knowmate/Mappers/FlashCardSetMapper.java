@@ -14,6 +14,7 @@ public class FlashCardSetMapper implements Function<FlashCardSet, FlashCardSetDt
         return new FlashCardSetDto(
                 flashCardSet.getId(),
                 flashCardSet.getUserId(),
+                flashCardSet.getUsername(),
                 flashCardSet.getTitle(),
                 flashCardSet.getDescription(),
                 flashCardSet.getSubjectDomain(),

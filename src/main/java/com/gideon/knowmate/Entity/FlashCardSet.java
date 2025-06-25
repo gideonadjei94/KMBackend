@@ -25,6 +25,7 @@ public class FlashCardSet {
 
 
     private String userId;
+    private String username;
 
     private String title;
     private String description;

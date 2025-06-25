@@ -1,10 +1,8 @@
 package com.gideon.knowmate.Response;
 
-import com.gideon.knowmate.Entity.User;
-
 public record AuthenticationResponse(
         String token,
-        String userId
-
+        String userId,
+        String username
 ) {
 }

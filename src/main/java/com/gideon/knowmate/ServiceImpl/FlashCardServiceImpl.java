@@ -34,6 +34,7 @@ public class FlashCardServiceImpl implements FlashCardService {
         }
         var newFlashCardSet = FlashCardSet.builder()
                 .userId(request.userId())
+                .username(request.username())
                 .title(request.title())
                 .description(request.description())
                 .subjectDomain(request.subjectDomain())
