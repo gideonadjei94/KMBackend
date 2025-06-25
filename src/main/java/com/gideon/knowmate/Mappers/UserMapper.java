@@ -12,7 +12,7 @@ public class UserMapper implements Function<User, UserDto> {
     public UserDto apply(User user) {
         return new UserDto(
                 user.getId(),
-                user.getUsername(),
+                user.getRealUserName(),
                 user.getEmail(),
                 user.getUserRole()
         );

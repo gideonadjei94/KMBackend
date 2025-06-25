@@ -75,5 +75,8 @@ public class User implements UserDetails{
         return true;
     }
 
+    public String getRealUserName(){
+        return username;
+    }
 
 }
