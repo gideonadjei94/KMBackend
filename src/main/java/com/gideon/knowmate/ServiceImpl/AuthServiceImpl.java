@@ -91,7 +91,11 @@ public class AuthServiceImpl implements AuthService {
                 String jwtToken = jwtService.generateToken(user, session.getUserRole());
                 otpVerificationSessRepo.deleteByEmail(session.getEmail());
 
-                return new AuthenticationResponse(jwtToken, newUser.getId(), newUser.getRealUserName());
+                return new AuthenticationResponse(
+                        jwtToken,
+                        newUser.getId(),
+                        newUser.getRealUserName(),
+                        newUser.getEmail());
             }
         }
 
@@ -119,7 +123,8 @@ public class AuthServiceImpl implements AuthService {
             return new AuthenticationResponse(
                     jwtToken,
                     existingUser.getId(),
-                    existingUser.getRealUserName()
+                    existingUser.getRealUserName(),
+                    existingUser.getEmail()
             );
         }
 
