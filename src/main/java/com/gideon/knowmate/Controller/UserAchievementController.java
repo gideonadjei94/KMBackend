@@ -20,12 +20,6 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/achievements")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
-@CrossOrigin(
-        origins = { "http://localhost:5173", "https://knowmate.onrender.com" },
-        allowedHeaders = "*",
-        methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH, RequestMethod.OPTIONS },
-        allowCredentials = "true"
-)
 public class UserAchievementController {
 
     private final UserAchievementService userAchievementService;

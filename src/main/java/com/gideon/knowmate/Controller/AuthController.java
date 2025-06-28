@@ -18,12 +18,6 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@CrossOrigin(
-        origins = { "http://localhost:5173", "https://knowmate.onrender.com" },
-        allowedHeaders = "*",
-        methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH, RequestMethod.OPTIONS },
-        allowCredentials = "true"
-)
 public class AuthController {
 
     private final AuthService authService;
