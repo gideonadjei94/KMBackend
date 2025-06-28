@@ -16,7 +16,7 @@ public class GlobalCorsConfig {
                  registry.addMapping("/**")
                         .allowedOrigins("http://localhost:5173", "https://knowmate.onrender.com")
                         .allowedHeaders("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowCredentials(true);
             }
         };
