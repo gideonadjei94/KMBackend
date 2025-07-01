@@ -14,4 +14,6 @@ public interface FlashCardSetRepository extends MongoRepository<FlashCardSet, St
     List<FlashCardSet> findAllBySubjectDomain(SubjectDomain subject);
 
     List<FlashCardSet> findAllByCourse(String course);
+
+    List<FlashCardSet> findAllBySavedByContains(String userId);
 }

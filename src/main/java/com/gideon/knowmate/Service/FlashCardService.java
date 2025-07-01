@@ -17,4 +17,10 @@ public interface FlashCardService {
     FlashCardSetDto getFlashCardSet(String id);
     void deleteFlashCardSet(String setId);
     FlashCardSetDto updateFlashCardSet(String setId, UpdateFlashCardSetRequest request);
+    void likeFlashCardSet(String setId, String userId);
+    void unlikeFlashCardSet(String setId, String userId);
+    void saveFlashCardSet(String setId, String userId);
+    void unSaveFlashCardSet(String setId, String userId);
+    void viewFlashCardSet(String setId, String userId);
+    List<FlashCardSetDto> getSavedFlashCardSets(String userId);
 }

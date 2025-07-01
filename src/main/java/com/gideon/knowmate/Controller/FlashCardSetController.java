@@ -96,4 +96,73 @@ public class FlashCardSetController {
                 .body(new ApiResponse("Flashcard Deleted Successfully", null));
     }
 
+
+    @PostMapping("/like-set")
+    public ResponseEntity<ApiResponse> likeFlashCardSet(
+            @RequestParam("setId") String setId,
+            @RequestParam("userId") String userId
+    ) {
+        service.likeFlashCardSet(setId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Liked Successfully", null));
+    }
+
+
+    @PostMapping("/unlike-set")
+    public ResponseEntity<ApiResponse> unlikeFlashCardSet(
+            @RequestParam("setId") String setId,
+            @RequestParam("userId") String userId
+    ) {
+        service.unlikeFlashCardSet(setId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Unliked Successfully", null));
+    }
+
+
+    @PostMapping("/save-set")
+    public ResponseEntity<ApiResponse> saveFlashCardSet(
+            @RequestParam("setId") String setId,
+            @RequestParam("userId") String userId
+    ) {
+        service.saveFlashCardSet(setId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Saved Successfully", null));
+    }
+
+
+    @PostMapping("/unsave-set")
+    public ResponseEntity<ApiResponse> unSaveFlashCardSet(
+            @RequestParam("setId") String setId,
+            @RequestParam("userId") String userId
+    ) {
+        service.unSaveFlashCardSet(setId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Unsaved Successfully", null));
+    }
+
+
+    @PostMapping("/view-set")
+    public ResponseEntity<ApiResponse> viewFlashCardSet(
+            @RequestParam("setId") String setId,
+            @RequestParam("userId") String userId
+    ) {
+        service.viewFlashCardSet(setId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Flashcard Viewed Successfully", null));
+    }
+
+
+    @GetMapping("/get-saved-flashcard-sets")
+    public ResponseEntity<ApiResponse> getSavedFlashCardSets(@RequestParam("userId") String userId) {
+        List<FlashCardSetDto> response = service.getSavedFlashCardSets(userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
+    }
+
 }
