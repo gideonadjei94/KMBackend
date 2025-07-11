@@ -75,4 +75,21 @@ public class GlobalExceptionHandler {
                 .status(BAD_REQUEST)
                 .body(new ApiResponse("Validation failed", errors));
     }
+
+
+    @ExceptionHandler(ExpiredAuthTokenException.class)
+    public ResponseEntity<ApiResponse> handleTokenExpirationException(Exception ex){
+        return ResponseEntity
+                .status(UNAUTHORIZED)
+                .body(new ApiResponse(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(InvalidAuthTokenException.class)
+    public ResponseEntity<ApiResponse> handleInvalidTokenException(Exception ex){
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(new ApiResponse(ex.getMessage(), null));
+    }
+
 }
