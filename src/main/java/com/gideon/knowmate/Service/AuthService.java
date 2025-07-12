@@ -10,9 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
     void register(RegisterUserRequest request) throws MessagingException;
-    AuthenticationResponse verifyUserEmailAndRegister(String email, String code, HttpServletResponse response);
-    AuthenticationResponse authenticate(LoginUserRequest request, HttpServletResponse response);
-    AuthenticationResponse refreshToken(String refreshToken, HttpServletResponse response);
+    AuthenticationResponse verifyUserEmailAndRegister(String email, String code);
+    AuthenticationResponse authenticate(LoginUserRequest request);
+    AuthenticationResponse refreshToken(String refreshToken);
     void resetPassword(String email) throws MessagingException;
     boolean verifyResetPasswordOTP(String email, String code);
     void setNewPassword(String email, String newPassword);

@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthenticationResponse verifyUserEmailAndRegister(String email, String code, HttpServletResponse response){
+    public AuthenticationResponse verifyUserEmailAndRegister(String email, String code){
         Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmail(email);
         if (emailVerificationSession.isPresent()) {
             OTPVerificationSess session = emailVerificationSession.get();
@@ -98,22 +98,13 @@ public class AuthServiceImpl implements AuthService {
                 var refreshToken = jwtService.generateRefreshToken(user, session.getUserRole());
                 otpVerificationSessRepo.deleteByEmail(session.getEmail());
 
-                ResponseCookie responseCookie = ResponseCookie.from(
-                        "refreshToken", refreshToken
-                )
-                        .httpOnly(true)
-                        .secure(true)
-                        .path("/")
-                        .sameSite("None")
-                        .maxAge(7 * 24 * 60 * 60)
-                        .build();
-
-                response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
                 return new AuthenticationResponse(
                         jwtToken,
                         newUser.getId(),
                         newUser.getRealUserName(),
-                        newUser.getEmail());
+                        newUser.getEmail(),
+                        refreshToken
+                );
             }
         }
 
@@ -124,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthenticationResponse authenticate(LoginUserRequest request, HttpServletResponse response) {
+    public AuthenticationResponse authenticate(LoginUserRequest request) {
         Optional<User> user = userRepo.findByEmail(request.email());
         if (user.isPresent()){
             User existingUser = user.get();
@@ -139,22 +130,12 @@ public class AuthServiceImpl implements AuthService {
             var jwtToken = jwtService.generateJwtToken(existingUser, UserDomain.STUDENT);
             var refreshToken = jwtService.generateRefreshToken(existingUser, UserDomain.STUDENT);
 
-            ResponseCookie responseCookie = ResponseCookie.from(
-                            "refreshToken", refreshToken
-                    )
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .sameSite("None")
-                    .maxAge(7 * 24 * 60 * 60)
-                    .build();
-
-            response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
             return new AuthenticationResponse(
                     jwtToken,
                     existingUser.getId(),
                     existingUser.getRealUserName(),
-                    existingUser.getEmail()
+                    existingUser.getEmail(),
+                    refreshToken
             );
         }
 
@@ -164,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthenticationResponse refreshToken(String refreshToken, HttpServletResponse response){
+    public AuthenticationResponse refreshToken(String refreshToken){
         String userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail == null || userEmail.isBlank()) {
             return null;
@@ -186,22 +167,12 @@ public class AuthServiceImpl implements AuthService {
                 existingUser,
                 existingUser.getUserRole()
         );
-        ResponseCookie refreshCookie = ResponseCookie.from(
-                "refreshToken", refreshToken
-                )
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
-                .sameSite("None")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         return new AuthenticationResponse(
                 newAccessToken,
                 existingUser.getId(),
                 existingUser.getRealUserName(),
-                existingUser.getEmail()
+                existingUser.getEmail(),
+                refreshToken
         );
     }
 

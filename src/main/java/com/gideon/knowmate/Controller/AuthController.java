@@ -38,10 +38,9 @@ public class AuthController {
     @PostMapping("/verify-email")
     public ResponseEntity<ApiResponse> verifyAndRegister(
             @RequestParam("email") String email,
-            @RequestBody EmailVerificationSubmit request,
-            HttpServletResponse httpServletResponse
+            @RequestBody EmailVerificationSubmit request
     ){
-        AuthenticationResponse response = authService.verifyUserEmailAndRegister(email, request.code(), httpServletResponse);
+        AuthenticationResponse response = authService.verifyUserEmailAndRegister(email, request.code());
             return ResponseEntity
                     .status(CREATED)
                     .body(new ApiResponse("Registration Successful", response));
@@ -52,11 +51,8 @@ public class AuthController {
 
 
     @PostMapping("/authenticate")
-    public ResponseEntity<ApiResponse> authenticateUser(
-            @Validated @RequestBody LoginUserRequest request,
-            HttpServletResponse httpServletResponse
-            ){
-        AuthenticationResponse response = authService.authenticate(request, httpServletResponse);
+    public ResponseEntity<ApiResponse> authenticateUser(@Validated @RequestBody LoginUserRequest request){
+        AuthenticationResponse response = authService.authenticate(request);
             return ResponseEntity
                     .status(OK)
                     .body(new ApiResponse("Login Successful", response));
@@ -66,18 +62,8 @@ public class AuthController {
 
 
     @GetMapping("/refresh-token")
-    public ResponseEntity<ApiResponse> refreshToken(
-            @CookieValue(name = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response
-            ){
-        if (refreshToken == null || refreshToken.isBlank()){
-            return ResponseEntity
-                    .status(FORBIDDEN)
-                    .body(new ApiResponse("Your has expired please log in to continue", null));
-        }
-
-        AuthenticationResponse newToken = authService.refreshToken(refreshToken, response);
-
+    public ResponseEntity<ApiResponse> refreshToken(@RequestParam("refresh_token") String refreshToken){
+        AuthenticationResponse newToken = authService.refreshToken(refreshToken);
         if (newToken == null) {
             return ResponseEntity
                     .status(FORBIDDEN)
