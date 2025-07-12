@@ -8,6 +8,7 @@ import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Response.AuthenticationResponse;
 import com.gideon.knowmate.Service.AuthService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,8 +33,11 @@ public class AuthController {
 
 
     @PostMapping("/verify-email")
-    public ResponseEntity<ApiResponse> verifyAndRegister(@RequestParam("email") String email, @RequestBody EmailVerificationSubmit request){
-        AuthenticationResponse response = authService.verifyUserEmailAndRegister(email, request.code());
+    public ResponseEntity<ApiResponse> verifyAndRegister(
+            @RequestParam("email") String email,
+            @RequestBody EmailVerificationSubmit request,
+            HttpServletResponse httpServletResponse){
+        AuthenticationResponse response = authService.verifyUserEmailAndRegister(email, request.code(), httpServletResponse);
             return ResponseEntity
                     .status(CREATED)
                     .body(new ApiResponse("Registration Successful", response));
@@ -43,11 +47,41 @@ public class AuthController {
 
 
     @PostMapping("/authenticate")
-    public ResponseEntity<ApiResponse> authenticateUser(@Validated @RequestBody LoginUserRequest request){
-        AuthenticationResponse response = authService.authenticate(request);
+    public ResponseEntity<ApiResponse> authenticateUser(
+            @Validated @RequestBody LoginUserRequest request,
+            HttpServletResponse httpServletResponse
+            ){
+        AuthenticationResponse response = authService.authenticate(request, httpServletResponse);
             return ResponseEntity
                     .status(OK)
                     .body(new ApiResponse("Login Successful", response));
+
+    }
+
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse> refreshToken(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response
+            ){
+        if (refreshToken == null || refreshToken.isBlank()){
+            return ResponseEntity
+                    .status(FORBIDDEN)
+                    .body(new ApiResponse("Your has expired please log in to continue", null));
+        }
+
+        AuthenticationResponse newToken = authService.refreshToken(refreshToken, response);
+
+        if (newToken == null) {
+            return ResponseEntity
+                    .status(FORBIDDEN)
+                    .body(new ApiResponse("Invalid or expired refresh token. Please log in again.", null));
+        }
+
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Access Token successfully refreshed", newToken));
+
 
     }
 

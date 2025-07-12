@@ -27,6 +27,12 @@ public class JwtService {
     @Value("${secret-key}")
     private String SECRET_KEY;
 
+    @Value("${jwt_token_exp}")
+    private long jwtExpiration;
+
+    @Value("${refresh_token_exp}")
+    private long refreshTokenExpiration;
+
     private final UserRepository userRepo;
 
     public String extractUsername(String jwtToken) {
@@ -54,14 +60,20 @@ public class JwtService {
     }
 
 
-    public String generateToken(UserDetails userDetails, UserDomain userType) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateJwtToken(UserDetails userDetails, UserDomain userType) {
+        return generateToken(new HashMap<>(), userDetails, jwtExpiration);
+    }
+
+
+    public String generateRefreshToken(UserDetails userDetails, UserDomain userType) {
+        return generateToken(new HashMap<>(), userDetails, refreshTokenExpiration);
     }
 
 
     public String generateToken(
-            Map<String, Object> extractClaims,
-            UserDetails userDetails
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
     ) {
 
         String id;
@@ -78,13 +90,13 @@ public class JwtService {
 
         return Jwts
                 .builder()
-                .claims(extractClaims)
+                .claims(extraClaims)
                 .id(String.valueOf(id))
                 .claim("roles", List.of(userRole))
                 .claim("id",id)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 48))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

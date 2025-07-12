@@ -16,10 +16,15 @@ import com.gideon.knowmate.Service.AuthService;
 import com.gideon.knowmate.Service.EmailService;
 import com.gideon.knowmate.Utils.UtilityFunctions;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final OTPVerificationSessRepo otpVerificationSessRepo;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void register(RegisterUserRequest request) throws MessagingException {
@@ -71,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthenticationResponse verifyUserEmailAndRegister(String email, String code){
+    public AuthenticationResponse verifyUserEmailAndRegister(String email, String code, HttpServletResponse response){
         Optional<OTPVerificationSess> emailVerificationSession = otpVerificationSessRepo.findByEmail(email);
         if (emailVerificationSession.isPresent()) {
             OTPVerificationSess session = emailVerificationSession.get();
@@ -88,9 +94,21 @@ public class AuthServiceImpl implements AuthService {
                         .build();
 
                 User newUser = userRepo.save(user);
-                String jwtToken = jwtService.generateToken(user, session.getUserRole());
+                var jwtToken = jwtService.generateJwtToken(user, session.getUserRole());
+                var refreshToken = jwtService.generateRefreshToken(user, session.getUserRole());
                 otpVerificationSessRepo.deleteByEmail(session.getEmail());
 
+                ResponseCookie responseCookie = ResponseCookie.from(
+                        "refreshToken", refreshToken
+                )
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .sameSite("None")
+                        .maxAge(7 * 24 * 60 * 60)
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
                 return new AuthenticationResponse(
                         jwtToken,
                         newUser.getId(),
@@ -106,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthenticationResponse authenticate(LoginUserRequest request) {
+    public AuthenticationResponse authenticate(LoginUserRequest request, HttpServletResponse response) {
         Optional<User> user = userRepo.findByEmail(request.email());
         if (user.isPresent()){
             User existingUser = user.get();
@@ -118,8 +136,20 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
 
-            var jwtToken = jwtService.generateToken(existingUser, UserDomain.STUDENT);
+            var jwtToken = jwtService.generateJwtToken(existingUser, UserDomain.STUDENT);
+            var refreshToken = jwtService.generateRefreshToken(existingUser, UserDomain.STUDENT);
 
+            ResponseCookie responseCookie = ResponseCookie.from(
+                            "refreshToken", refreshToken
+                    )
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .sameSite("None")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
             return new AuthenticationResponse(
                     jwtToken,
                     existingUser.getId(),
@@ -129,6 +159,53 @@ public class AuthServiceImpl implements AuthService {
         }
 
         throw new EntityNotFoundException("User not found");
+    }
+
+
+
+    @Override
+    public AuthenticationResponse refreshToken(String refreshToken, HttpServletResponse response){
+        String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail == null || userEmail.isBlank()) {
+            return null;
+        }
+
+        Optional<User> userOpt = userRepo.findByEmail(userEmail);
+        if (userOpt.isEmpty()) {
+            return null;
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+        if (!jwtService.isTokenValid(refreshToken, userDetails)) {
+            return null;
+        }
+
+        User existingUser = userOpt.get();
+
+        String newAccessToken = jwtService.generateJwtToken(
+                existingUser,
+                existingUser.getUserRole()
+        );
+
+        ResponseCookie refreshCookie = ResponseCookie.from(
+                "refreshToken", refreshToken
+                )
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("None")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return new AuthenticationResponse(
+                newAccessToken,
+                existingUser.getId(),
+                existingUser.getRealUserName(),
+                existingUser.getEmail()
+        );
     }
 
 
@@ -153,6 +230,8 @@ public class AuthServiceImpl implements AuthService {
        throw new EntityNotFoundException("Email does not exist");
     }
 
+
+
     @Override
     public boolean verifyResetPasswordOTP(String email, String code) {
         return otpVerificationSessRepo.findByEmail(email)
@@ -160,6 +239,8 @@ public class AuthServiceImpl implements AuthService {
                 .filter(session -> session.getExpirationTime().isAfter(LocalDateTime.now()))
                 .isPresent();
     }
+
+
 
     @Override
     public void setNewPassword(String email, String newPassword) {

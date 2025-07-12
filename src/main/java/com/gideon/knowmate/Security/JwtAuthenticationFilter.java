@@ -1,5 +1,7 @@
 package com.gideon.knowmate.Security;
 
+import com.gideon.knowmate.Exceptions.ExpiredAuthTokenException;
+import com.gideon.knowmate.Exceptions.InvalidAuthTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,17 +48,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if (jwtService.isTokenValid(jwt, userDetails)){
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+                try {
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities());
 
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                } catch (ExpiredAuthTokenException e) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"" + e.getMessage() + "\"}");
+                    return;
+                } catch (InvalidAuthTokenException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"" + e.getMessage() + "\"}");
+                    return;
                 }
             }
 
