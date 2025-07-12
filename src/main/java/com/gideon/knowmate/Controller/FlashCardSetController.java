@@ -80,7 +80,10 @@ public class FlashCardSetController {
 
 
     @PutMapping("/update/set/{setId}")
-    public ResponseEntity<ApiResponse> updateFlashCardSet(@RequestBody UpdateFlashCardSetRequest request, @PathVariable String setId){
+    public ResponseEntity<ApiResponse> updateFlashCardSet(
+            @RequestBody UpdateFlashCardSetRequest request,
+            @PathVariable String setId
+    ){
         FlashCardSetDto response = service.updateFlashCardSet(setId, request);
         return ResponseEntity
                 .status(CREATED)

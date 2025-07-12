@@ -1,7 +1,7 @@
 package com.gideon.knowmate.Response;
 
 public record AuthenticationResponse(
-        String access_token,
+        String token,
         String userId,
         String username,
         String email

@@ -24,7 +24,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> registerUser(@Validated @RequestBody RegisterUserRequest request) throws MessagingException {
+    public ResponseEntity<ApiResponse> registerUser(
+            @Validated @RequestBody RegisterUserRequest request
+    ) throws MessagingException {
          authService.register(request);
         return ResponseEntity
             .status(CREATED)
@@ -32,11 +34,13 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/verify-email")
     public ResponseEntity<ApiResponse> verifyAndRegister(
             @RequestParam("email") String email,
             @RequestBody EmailVerificationSubmit request,
-            HttpServletResponse httpServletResponse){
+            HttpServletResponse httpServletResponse
+    ){
         AuthenticationResponse response = authService.verifyUserEmailAndRegister(email, request.code(), httpServletResponse);
             return ResponseEntity
                     .status(CREATED)
@@ -44,6 +48,7 @@ public class AuthController {
 
 
     }
+
 
 
     @PostMapping("/authenticate")
@@ -57,6 +62,7 @@ public class AuthController {
                     .body(new ApiResponse("Login Successful", response));
 
     }
+
 
 
     @PostMapping("/refresh-token")
@@ -86,6 +92,7 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws MessagingException {
         authService.resetPassword(email);
@@ -95,8 +102,12 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/verify-reset-password-OTP")
-    public ResponseEntity<ApiResponse> verifyResetPasswordOTP(@RequestParam("email") String email, @RequestBody EmailVerificationSubmit submit ){
+    public ResponseEntity<ApiResponse> verifyResetPasswordOTP(
+            @RequestParam("email") String email,
+            @RequestBody EmailVerificationSubmit submit
+    ){
         boolean response = authService.verifyResetPasswordOTP(email, submit.code());
         if (response){
             return ResponseEntity
@@ -109,8 +120,12 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/set-new-password")
-    public ResponseEntity<ApiResponse> setNewPassword(@RequestParam("email") String email, @RequestBody SetNewPasswordRequest request){
+    public ResponseEntity<ApiResponse> setNewPassword(
+            @RequestParam("email") String email,
+            @RequestBody SetNewPasswordRequest request
+    ){
         authService.setNewPassword(email, request.newPassword());
         return ResponseEntity
                 .status(OK)

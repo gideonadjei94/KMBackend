@@ -25,7 +25,10 @@ public class UserAchievementController {
     private final UserAchievementService userAchievementService;
 
     @PostMapping("/unlock")
-    public ResponseEntity<ApiResponse> unlockAnAchievement(@RequestParam("userId") String userId, @RequestParam("type")AchievementType type){
+    public ResponseEntity<ApiResponse> unlockAnAchievement(
+            @RequestParam("userId") String userId,
+            @RequestParam("type")AchievementType type
+    ){
         userAchievementService.addAchievement(userId, type);
         return ResponseEntity
                 .status(CREATED)

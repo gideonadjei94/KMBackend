@@ -182,12 +182,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User existingUser = userOpt.get();
-
         String newAccessToken = jwtService.generateJwtToken(
                 existingUser,
                 existingUser.getUserRole()
         );
-
         ResponseCookie refreshCookie = ResponseCookie.from(
                 "refreshToken", refreshToken
                 )
@@ -199,7 +197,6 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
         return new AuthenticationResponse(
                 newAccessToken,
                 existingUser.getId(),
