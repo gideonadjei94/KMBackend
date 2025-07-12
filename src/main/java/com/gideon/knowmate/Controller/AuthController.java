@@ -65,7 +65,7 @@ public class AuthController {
 
 
 
-    @PostMapping("/refresh-token")
+    @GetMapping("/refresh-token")
     public ResponseEntity<ApiResponse> refreshToken(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
@@ -87,7 +87,6 @@ public class AuthController {
         return ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Access Token successfully refreshed", newToken));
-
 
     }
 
