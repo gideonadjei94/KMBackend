@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,13 +36,13 @@ public class FlashCardSet {
 
     private List<FlashCard> flashCardList;
 
-    private List<String> likeBy;
+    private List<String> likeBy = new ArrayList<>();
 
-    private List<String> viewedBy;
+    private List<String> viewedBy = new ArrayList<>();
 
-    private List<String> savedBy;
+    private List<String> savedBy = new ArrayList<>();
 
-    private List<String> sharedBy;
+    private List<String> sharedBy = new ArrayList<>();
 
     @CreatedDate
     private Date createdAt;
