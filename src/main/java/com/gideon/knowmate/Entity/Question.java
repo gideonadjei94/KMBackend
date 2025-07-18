@@ -1,20 +1,22 @@
 package com.gideon.knowmate.Entity;
 
-import com.gideon.knowmate.Enum.QuestionType;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Question {
-
+    @Id
     private String id;
-
-    private QuestionType type;
-
     private String questionStatement;
-
     private List<String> options;
-
     private String correctAnswer;
 
 }

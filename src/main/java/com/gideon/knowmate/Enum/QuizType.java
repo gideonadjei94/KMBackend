@@ -1,8 +1,8 @@
 package com.gideon.knowmate.Enum;
 
-public enum QuestionType {
+public enum QuizType {
     MCQ,
     TRUEORFALSE,
-    FILLIN
-
+    FILLIN,
+    OBJECTIVES
 }
