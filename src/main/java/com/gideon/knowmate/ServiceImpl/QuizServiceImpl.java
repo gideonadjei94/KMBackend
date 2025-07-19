@@ -54,7 +54,6 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
-
     @Override
     public QuizDto generateQuizFromSlides(MultipartFile file, CreateQuizRequest request) {
 
@@ -62,8 +61,6 @@ public class QuizServiceImpl implements QuizService {
         if (request.numberOfQuestions() <= 0) throw new IllegalArgumentException("Number of questions must be greater than zero");
 
         String extractedContent = fileExtractor.extractText(file);
-
-        log.info("Extracted Content: " + extractedContent);
 
         if (extractedContent == null || extractedContent.isBlank())
             throw new IllegalArgumentException("Failed to extract content from file");
@@ -96,6 +93,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
+
     private void validateRequest(CreateQuizRequest request) {
         if (request.numberOfQuestions() <= 0) {
             throw new IllegalArgumentException("Number of questions must be greater than zero");
@@ -105,6 +103,8 @@ public class QuizServiceImpl implements QuizService {
         }
 
     }
+
+
 
     private String buildPrompt(CreateQuizRequest request) {
         String promptTemplate = switch (request.quizType()) {
@@ -122,6 +122,7 @@ public class QuizServiceImpl implements QuizService {
                 request.difficulty()
         );
     }
+
 
 
     private String buildFileTypePrompt(QuizType type, QuizDifficulty difficulty, int numberOfQuestions, String extractedContent) {
