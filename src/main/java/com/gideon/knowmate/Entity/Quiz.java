@@ -2,6 +2,7 @@ package com.gideon.knowmate.Entity;
 
 import com.gideon.knowmate.Enum.QuizDifficulty;
 import com.gideon.knowmate.Enum.QuizType;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,9 +34,10 @@ public class Quiz {
     private QuizDifficulty difficulty;
     private List<Question> questions = new ArrayList<>();
     private int duration;
-
+    private Scope accessScope;
     private List<String> likedBy = new ArrayList<>();
-    private List<String> savedBy = new ArrayList<>();
+    private boolean saved = false;
+    private int Score;
 
     @CreatedDate
     private Date createdAt;

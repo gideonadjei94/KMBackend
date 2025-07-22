@@ -8,7 +8,7 @@ import com.gideon.knowmate.Enum.SubjectDomain;
 import java.util.Date;
 import java.util.List;
 
-public record QuizDto(
+public record ChallengeQuizDto(
         String id,
         String userId,
         String title,
@@ -21,8 +21,6 @@ public record QuizDto(
         int duration,
         List<Question> questions,
         List<String> likedBy,
-        boolean saved,
-        int Score,
         Date createdAt
 ) {
 }

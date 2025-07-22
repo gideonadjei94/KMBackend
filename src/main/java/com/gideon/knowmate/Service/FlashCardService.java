@@ -2,6 +2,7 @@ package com.gideon.knowmate.Service;
 
 
 import com.gideon.knowmate.Dto.FlashCardSetDto;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
 import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
@@ -23,4 +24,6 @@ public interface FlashCardService {
     void unSaveFlashCardSet(String setId, String userId);
     void viewFlashCardSet(String setId, String userId);
     List<FlashCardSetDto> getSavedFlashCardSets(String userId);
+    List<FlashCardSetDto> getPublicFlashCardSets(String userId);
+    FlashCardSetDto changeFlashCardAccessScope(String setId, Scope scope);
 }

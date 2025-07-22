@@ -5,6 +5,7 @@ package com.gideon.knowmate.ServiceImpl;
 import com.gideon.knowmate.Dto.FlashCardSetDto;
 import com.gideon.knowmate.Entity.FlashCardSet;
 import com.gideon.knowmate.Entity.User;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
 import com.gideon.knowmate.Mappers.FlashCardSetMapper;
@@ -42,6 +43,7 @@ public class FlashCardServiceImpl implements FlashCardService {
                 .description(request.description())
                 .subjectDomain(request.subjectDomain())
                 .course(request.course())
+                .accessScope(request.accessScope())
                 .flashCardList(request.flashCardList())
                 .build();
 
@@ -247,5 +249,28 @@ public class FlashCardServiceImpl implements FlashCardService {
                 .stream()
                 .map(flashCardSetMapper)
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<FlashCardSetDto> getPublicFlashCardSets(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found");
+        }
+
+        return flashCardSetRepository.findAllByUserIdAndAccessScope(userId, Scope.PUBLIC)
+                .stream()
+                .map(flashCardSetMapper)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public FlashCardSetDto changeFlashCardAccessScope(String setId, Scope scope) {
+        FlashCardSet set = flashCardSetRepository.findById(setId)
+                .orElseThrow(() -> new EntityNotFoundException("FlashCard not found"));
+        set.setAccessScope(scope);
+        var updatedSet = flashCardSetRepository.save(set);
+        return flashCardSetMapper.apply(updatedSet);
     }
 }

@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Entity;
 
 
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,6 +34,7 @@ public class FlashCardSet {
 
     private SubjectDomain subjectDomain;
     private String course;
+    private Scope accessScope = Scope.PRIVATE;
 
     private List<FlashCard> flashCardList;
 

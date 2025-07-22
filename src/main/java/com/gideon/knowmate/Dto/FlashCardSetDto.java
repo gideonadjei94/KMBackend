@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Dto;
 
 import com.gideon.knowmate.Entity.FlashCard;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ public record FlashCardSetDto(
         SubjectDomain subject,
         String course,
         List<FlashCard> flashCardList,
+        Scope accessSCope,
         List<String> likedBy,
         List<String> viewedBy,
         List<String> savedBy,

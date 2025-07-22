@@ -1,0 +1,20 @@
+package com.gideon.knowmate.Service;
+
+import com.gideon.knowmate.Dto.ChallengeDto;
+import com.gideon.knowmate.Dto.ChallengeQuizDto;
+import com.gideon.knowmate.Dto.LeaderBoardDto;
+import com.gideon.knowmate.Requests.CreateChallengeRequest;
+import com.gideon.knowmate.Requests.UpdateAccessRequest;
+
+import java.util.List;
+
+public interface ChallengeService {
+    String createChallenge (CreateChallengeRequest request);
+    List<ChallengeDto> getChallenges();
+    void closeChallenge(String challengeId, String userId);
+    void requestAccess(String challengeId, String userId);
+    void updateAccessRequest(UpdateAccessRequest request);
+    ChallengeDto getChallenge(String challengeId, String userId);
+    ChallengeQuizDto startChallenge(String challengeId, String userId);
+    void finishChallenge(String userId, String score);
+}

@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(SessionExpiredException.class)
-    public ResponseEntity<ApiResponse> handleEntityNotFoundException(SessionExpiredException ex){
+    public ResponseEntity<ApiResponse> handleSessionExpiredException(SessionExpiredException ex){
         return ResponseEntity
                 .status(BAD_REQUEST)
                 .body(new ApiResponse(ex.getMessage(), null));
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(EntityAlreadyExists.class)
-    public ResponseEntity<ApiResponse> handleMessagingException(EntityAlreadyExists ex){
+    public ResponseEntity<ApiResponse> handleEntityAlreadyExistsException(EntityAlreadyExists ex){
         return ResponseEntity
                 .status(BAD_REQUEST)
                 .body(new ApiResponse(ex.getMessage(), null));
@@ -49,9 +49,17 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleMessagingException(IllegalArgumentException ex){
+    public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException ex){
         return ResponseEntity
                 .status(BAD_REQUEST)
+                .body(new ApiResponse(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse> handleIllegalStateException(IllegalStateException ex){
+        return ResponseEntity
+                .status(CONFLICT)
                 .body(new ApiResponse(ex.getMessage(), null));
     }
 

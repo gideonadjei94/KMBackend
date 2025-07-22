@@ -4,18 +4,19 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Question {
+@Document(collection = "notifications")
+public class Notification {
     @Id
     private String id;
-    private String questionStatement;
-    private List<String> options;
-    private String correctAnswer;
-
-
+    private  List<User> participants;
+    private Request request;
+    private List<Message> messages = new ArrayList<>();
 }

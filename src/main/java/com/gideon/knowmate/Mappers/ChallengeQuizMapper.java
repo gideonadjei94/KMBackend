@@ -1,16 +1,16 @@
 package com.gideon.knowmate.Mappers;
 
-import com.gideon.knowmate.Dto.QuizDto;
+import com.gideon.knowmate.Dto.ChallengeQuizDto;
 import com.gideon.knowmate.Entity.Quiz;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
 @Service
-public class QuizMapper implements Function<Quiz, QuizDto> {
+public class ChallengeQuizMapper implements Function<Quiz, ChallengeQuizDto> {
     @Override
-    public QuizDto apply(Quiz quiz) {
-        return new QuizDto(
+    public ChallengeQuizDto apply(Quiz quiz) {
+        return new ChallengeQuizDto(
                 quiz.getId(),
                 quiz.getUserId(),
                 quiz.getTitle(),
@@ -23,8 +23,6 @@ public class QuizMapper implements Function<Quiz, QuizDto> {
                 quiz.getDuration(),
                 quiz.getQuestions(),
                 quiz.getLikedBy(),
-                quiz.isSaved(),
-                quiz.getScore(),
                 quiz.getCreatedAt()
         );
     }

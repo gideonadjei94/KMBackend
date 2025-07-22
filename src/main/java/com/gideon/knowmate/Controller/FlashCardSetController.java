@@ -2,6 +2,7 @@ package com.gideon.knowmate.Controller;
 
 
 import com.gideon.knowmate.Dto.FlashCardSetDto;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
 import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
@@ -40,6 +41,27 @@ public class FlashCardSetController {
         return ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Success", response));
+    }
+
+
+    @GetMapping("/get-public-sets")
+    public ResponseEntity<ApiResponse> getPublicFlashCards(@RequestParam("userId") String userId){
+        List<FlashCardSetDto> response = service.getPublicFlashCardSets(userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
+    }
+
+
+    @PatchMapping("/change-set-scope")
+    public ResponseEntity<ApiResponse> updateSetAccessScope(
+            @RequestParam("setId") String setId,
+            @RequestParam("scope") Scope scope
+            ){
+        FlashCardSetDto response = service.changeFlashCardAccessScope(setId, scope);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Scope Updated Successfully", response));
     }
 
 

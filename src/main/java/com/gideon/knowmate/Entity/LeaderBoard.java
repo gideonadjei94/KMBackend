@@ -6,16 +6,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class Question {
+@NoArgsConstructor
+@Document(collection = "challenge-leaderboards")
+public class LeaderBoard {
     @Id
     private String id;
-    private String questionStatement;
-    private List<String> options;
-    private String correctAnswer;
-
-
+    List<LeaderBoardEntry> entries;
 }

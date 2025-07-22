@@ -20,6 +20,7 @@ public class FlashCardSetMapper implements Function<FlashCardSet, FlashCardSetDt
                 flashCardSet.getSubjectDomain(),
                 flashCardSet.getCourse(),
                 flashCardSet.getFlashCardList(),
+                flashCardSet.getAccessScope(),
                 flashCardSet.getLikeBy(),
                 flashCardSet.getViewedBy(),
                 flashCardSet.getSavedBy(),
