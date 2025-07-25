@@ -7,8 +7,10 @@ import com.gideon.knowmate.Enum.RequestStatus;
 import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
 import com.gideon.knowmate.Mappers.ChallengeMapper;
+import com.gideon.knowmate.Mappers.ChallengeQuizMapper;
 import com.gideon.knowmate.Repository.*;
 import com.gideon.knowmate.Requests.CreateChallengeRequest;
+import com.gideon.knowmate.Requests.FinishChallengeRequest;
 import com.gideon.knowmate.Requests.UpdateAccessRequest;
 import com.gideon.knowmate.Service.ChallengeService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final LeaderBoardRepository leaderBoardRepository;
     private final NotificationRepository notificationRepository;
     private final ChallengeMapper mapper;
+    private final ChallengeQuizMapper quizMapper;
 
     @Override
     public String createChallenge(CreateChallengeRequest request) {
@@ -149,13 +152,43 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public ChallengeQuizDto startChallenge(String challengeId, String userId) {
-        return null;
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new EntityNotFoundException("Challenge not found "));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        boolean userHasTakenChallenge = leaderBoardRepository.existsByIdAndEntriesUsername(
+                challenge.getLeaderBoard().getId(),
+                user.getRealUserName()
+        );
+
+        if (userHasTakenChallenge){
+            throw new IllegalArgumentException("You have already taken this challenge");
+        }
+
+        return quizMapper.apply(challenge.getQuiz());
     }
 
 
     @Override
-    public void finishChallenge(String userId, String score) {
+    public void finishChallenge(FinishChallengeRequest request, String challengeId) {
+            Challenge challenge = challengeRepository.findById(challengeId)
+                    .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
+            User user = userRepository.findById(request.userId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+            LeaderBoard leaderBoard = leaderBoardRepository.findById(challenge.getLeaderBoard().getId())
+                            .orElseThrow(() -> new EntityNotFoundException("LeaderBoard not found"));
+            leaderBoard.setEntries(
+                    List.of(
+                           new LeaderBoardEntry(
+                                   user.getRealUserName(),
+                                   request.score()
+                           )
+                    )
+            );
+
+        leaderBoardRepository.save(leaderBoard);
     }
 
 

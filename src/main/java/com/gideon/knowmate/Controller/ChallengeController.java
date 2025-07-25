@@ -2,7 +2,9 @@ package com.gideon.knowmate.Controller;
 
 
 import com.gideon.knowmate.Dto.ChallengeDto;
+import com.gideon.knowmate.Dto.ChallengeQuizDto;
 import com.gideon.knowmate.Requests.CreateChallengeRequest;
+import com.gideon.knowmate.Requests.FinishChallengeRequest;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.ChallengeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -50,7 +52,7 @@ public class ChallengeController {
         ChallengeDto response = service.getChallenge(challengeId, userId);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse("Request Sent Successfully", response));
+                .body(new ApiResponse("Success", response));
     }
 
 
@@ -77,6 +79,29 @@ public class ChallengeController {
                 .body(new ApiResponse("Request Sent Successfully", null));
     }
 
+
+    @PostMapping("/start-challenge")
+    public ResponseEntity<ApiResponse> startChallenge(
+            @RequestParam("challengeId") String challengeId,
+            @RequestParam("userId") String userId
+    ){
+        ChallengeQuizDto response = service.startChallenge(challengeId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
+    }
+
+
+    @PostMapping("/finish-challenge")
+    public ResponseEntity<ApiResponse> finishChallenge(
+            @RequestParam("challengeId") String challengeId,
+            @RequestBody FinishChallengeRequest request
+            ){
+        service.finishChallenge(request, challengeId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", null));
+    }
 
 
 }

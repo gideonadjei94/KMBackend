@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -15,5 +16,5 @@ import java.util.List;
 public class LeaderBoard {
     @Id
     private String id;
-    List<LeaderBoardEntry> entries;
+    List<LeaderBoardEntry> entries = new ArrayList<>();
 }
