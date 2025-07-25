@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -25,6 +27,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
     private final QuizRepository quizRepository;
+    private final RequestRepository requestRepository;
     private final LeaderBoardRepository leaderBoardRepository;
     private final NotificationRepository notificationRepository;
     private final ChallengeMapper mapper;
@@ -94,20 +97,10 @@ public class ChallengeServiceImpl implements ChallengeService {
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        var request = Request.builder()
-                .message(String.format(
-                        "%s wants to take part in the %s challenge",
-                        sender.getRealUserName(),
-                        challenge.getQuiz().getTopic()
-                ))
-                .receiver(challenge.getCreator())
-                .sender(sender)
-                .status(RequestStatus.PENDING)
-                .build();
 
+        sendRequest(sender, challenge.getCreator(), RequestStatus.PENDING, challenge);
         var notification = Notification.builder()
                 .participants(List.of(challenge.getCreator(), sender))
-                .request(request)
                 .build();
         notificationRepository.save(notification);
     }
@@ -115,31 +108,42 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public void updateAccessRequest(UpdateAccessRequest request) {
-        Notification notification = notificationRepository.findById(request.notificationId())
-                .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
+        Request request1 = requestRepository.findById(request.requestId())
+                .orElseThrow(() -> new EntityNotFoundException("Request not found"));
 
-        if (!notification.getRequest().getReceiver().getId().equals(request.userId())) {
-            throw new IllegalArgumentException("You are not permitted to grant access");
-        }
-
-        Challenge challenge = challengeRepository.findById(notification.getRequest().getChallengeId())
+        Challenge challenge = challengeRepository.findById(request1.getChallengeId())
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
 
         if (request.status().equals(RequestStatus.APPROVED)){
-            challenge.getAllowedUsers().add(notification.getRequest().getSender().getId());
-            notification.getRequest().setStatus(request.status());
+            challenge.getAllowedUsers().add(request1.getSender().getId());
+            request1.setStatus(request.status());
 
             challengeRepository.save(challenge);
-            notificationRepository.save(notification);
+            requestRepository.save(request1);
         }
-
         // send/create  a notification
+            sendNotification(
+                    List.of(
+                            request.userId(),
+                            request1.getSender().getId()
+                    ),
+                    request1.getReceiver(),
+                    request1.getSender(),
+                    request.status(),
+                    challenge.getQuiz().getTopic()
+            );
     }
 
 
     @Override
     public ChallengeDto getChallenge(String challengeId, String userId) {
-        return null;
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
+
+        if (challenge.getAccessScope().equals(Scope.PRIVATE) && !challenge.getAllowedUsers().contains(userId)){
+            throw  new IllegalArgumentException("You not Allowed to take the challenge request for permission");
+        }
+        return mapper.apply(challenge);
     }
 
 
@@ -152,6 +156,47 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     public void finishChallenge(String userId, String score) {
 
+    }
+
+
+    public void sendRequest(User sender, User receiver, RequestStatus status, Challenge challenge){
+        var request = Request.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .status(status)
+                .message(String.format(
+                        "%s wants to take part in the %s challenge",
+                        sender.getRealUserName(),
+                        challenge.getQuiz().getTopic()
+                ))
+                .build();
+        requestRepository.save(request);
+    }
+
+
+    public void sendNotification(List<String> userIds, User sender, User receiver, RequestStatus status, String topic){
+        Optional<Notification> notification = notificationRepository.findByParticipantsIds(userIds);
+        if(notification.isEmpty()){
+            throw new EntityNotFoundException("Notification not found");
+        }
+
+        var existingNotification = notification.get();
+        existingNotification.setMessages(
+                List.of(
+                        new Message(
+                                sender,
+                                receiver,
+                                String.format("%s %s your request to take part in the %s challenge",
+                                        sender.getRealUserName(),
+                                        status,
+                                        topic
+                                ),
+                                LocalDateTime.now()
+                        )
+                )
+        );
+
+        notificationRepository.save(existingNotification);
     }
 
 

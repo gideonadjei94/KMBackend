@@ -42,6 +42,18 @@ public class ChallengeController {
     }
 
 
+    @GetMapping("/challenge")
+    public ResponseEntity<ApiResponse> getChallenge(
+            @RequestParam("challengeId") String challengeId,
+            @RequestParam("userId") String userId
+    ){
+        ChallengeDto response = service.getChallenge(challengeId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Request Sent Successfully", response));
+    }
+
+
     @PostMapping("/close")
     public ResponseEntity<ApiResponse> closeChallenge(
             @RequestParam("challengeId") String challengeId,
@@ -64,4 +76,7 @@ public class ChallengeController {
                 .status(OK)
                 .body(new ApiResponse("Request Sent Successfully", null));
     }
+
+
+
 }

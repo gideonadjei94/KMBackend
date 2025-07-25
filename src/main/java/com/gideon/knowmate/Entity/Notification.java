@@ -17,6 +17,5 @@ public class Notification {
     @Id
     private String id;
     private  List<User> participants;
-    private Request request;
     private List<Message> messages = new ArrayList<>();
 }
