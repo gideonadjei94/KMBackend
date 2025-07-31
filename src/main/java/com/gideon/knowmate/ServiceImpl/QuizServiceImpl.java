@@ -148,6 +148,24 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
+    @Override
+    public QuizDto getQuizById(String quizId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new IllegalArgumentException("Quiz not found with ID: " + quizId));
+
+        return quizMapper.apply(quiz);
+    }
+
+
+    @Override
+    public List<QuizDto> getPublicQuizzes() {
+        return quizRepository.findAllByAccessScope("PUBLIC")
+                .stream()
+                .map(quizMapper)
+                .toList();
+    }
+
+
     private Prompt getPrompt(CreateQuizRequest request, String extractedContent) {
         if (extractedContent == null || extractedContent.isBlank()) {
             throw new IllegalArgumentException("Failed to extract content from file");

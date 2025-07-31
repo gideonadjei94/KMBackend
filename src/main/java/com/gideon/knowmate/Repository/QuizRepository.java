@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface QuizRepository extends MongoRepository<Quiz, String> {
     List<Quiz> findAllByUserId(String userId);
+
+    List<Quiz> findAllByAccessScope(String aPublic);
 }

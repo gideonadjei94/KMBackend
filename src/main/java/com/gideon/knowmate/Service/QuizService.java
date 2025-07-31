@@ -11,4 +11,6 @@ public interface QuizService {
     QuizDto generateQuizFromSlides(MultipartFile file, CreateQuizRequest request);
     List<QuizDto> getAllUserQuizzes(String userId);
     void saveQuiz(String quizId, String userId);
+    QuizDto getQuizById(String quizId);
+    List<QuizDto> getPublicQuizzes();
 }

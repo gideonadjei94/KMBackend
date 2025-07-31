@@ -76,5 +76,21 @@ public class QuizController {
     }
 
 
+    @GetMapping("/quiz")
+    public ResponseEntity<ApiResponse> getQuiz(@RequestParam("quizId") String quizId) {
+        QuizDto quiz = quizService.getQuizById(quizId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", quiz));
+    }
+
+
+    @GetMapping("/public-quizzes")
+    public ResponseEntity<ApiResponse> getPublicQuizzes() {
+        List<QuizDto> quizzes = quizService.getPublicQuizzes();
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", quizzes));
+    }
 
 }
