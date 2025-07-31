@@ -25,6 +25,7 @@ public class QuizMapper implements Function<Quiz, QuizDto> {
                 quiz.getLikedBy(),
                 quiz.isSaved(),
                 quiz.getScore(),
+                quiz.getAccessScope(),
                 quiz.getCreatedAt()
         );
     }

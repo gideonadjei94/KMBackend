@@ -3,6 +3,7 @@ package com.gideon.knowmate.Dto;
 import com.gideon.knowmate.Entity.Question;
 import com.gideon.knowmate.Enum.QuizDifficulty;
 import com.gideon.knowmate.Enum.QuizType;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 
 import java.util.Date;
@@ -23,6 +24,7 @@ public record QuizDto(
         List<String> likedBy,
         boolean saved,
         int Score,
+        Scope accessScope,
         Date createdAt
 ) {
 }

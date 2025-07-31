@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
@@ -50,4 +52,28 @@ public class QuizController {
                 .status(CREATED)
                 .body(new ApiResponse("Quiz Created Successfully", quizDto));
     }
+
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse> getUserQuizzes(@RequestParam("userId") String userId) {
+        List<QuizDto> quizzes = quizService.getAllUserQuizzes(userId);
+        return ResponseEntity
+                .status(CREATED)
+                .body(new ApiResponse("Quiz Created Successfully", quizzes));
+    }
+
+
+    @PatchMapping("/save-quiz")
+    public ResponseEntity<ApiResponse> saveQuiz(
+            @RequestParam("quizId") String quizId,
+            @RequestParam("userId") String userId
+    ) {
+        quizService.saveQuiz(quizId, userId);
+        return ResponseEntity
+                .status(CREATED)
+                .body(new ApiResponse("Quiz Created Successfully", null));
+    }
+
+
+
 }

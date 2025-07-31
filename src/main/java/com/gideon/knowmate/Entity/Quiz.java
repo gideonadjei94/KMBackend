@@ -34,7 +34,7 @@ public class Quiz {
     private QuizDifficulty difficulty;
     private List<Question> questions = new ArrayList<>();
     private int duration;
-    private Scope accessScope;
+    private Scope accessScope= Scope.PUBLIC;
     private List<String> likedBy = new ArrayList<>();
     private boolean saved = false;
     private int Score;

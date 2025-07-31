@@ -17,5 +17,4 @@ public class Question {
     private List<String> options;
     private String correctAnswer;
 
-
 }
