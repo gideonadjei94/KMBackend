@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
@@ -58,8 +59,8 @@ public class QuizController {
     public ResponseEntity<ApiResponse> getUserQuizzes(@RequestParam("userId") String userId) {
         List<QuizDto> quizzes = quizService.getAllUserQuizzes(userId);
         return ResponseEntity
-                .status(CREATED)
-                .body(new ApiResponse("Quiz Created Successfully", quizzes));
+                .status(OK)
+                .body(new ApiResponse("Success", quizzes));
     }
 
 
@@ -70,8 +71,8 @@ public class QuizController {
     ) {
         quizService.saveQuiz(quizId, userId);
         return ResponseEntity
-                .status(CREATED)
-                .body(new ApiResponse("Quiz Created Successfully", null));
+                .status(OK)
+                .body(new ApiResponse("Quiz Saved Successfully", null));
     }
 
 
