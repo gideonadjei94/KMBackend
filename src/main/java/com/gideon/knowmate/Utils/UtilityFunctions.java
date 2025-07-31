@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Utils;
 
 import com.gideon.knowmate.Entity.FlashCardSet;
+import com.gideon.knowmate.Entity.Quiz;
 
 import java.security.SecureRandom;
 
@@ -13,6 +14,7 @@ public class UtilityFunctions {
         return String.valueOf(100000 + random.nextInt(900000));
     }
 
+
     public static long calculatePopularityScore(FlashCardSet set) {
         long likes = !set.getLikeBy().isEmpty() ? set.getLikeBy().size() : 0;
         long views = !set.getViewedBy().isEmpty() ? set.getViewedBy().size() : 0;
@@ -21,4 +23,6 @@ public class UtilityFunctions {
 
         return (likes * 3) + (views ) + (saves * 4) + (shares * 5);
     }
+
+
 }

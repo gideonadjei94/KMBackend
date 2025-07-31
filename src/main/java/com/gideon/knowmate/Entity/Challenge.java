@@ -35,7 +35,6 @@ public class Challenge {
     private User creator;
     private List<String> allowedUsers = new ArrayList<>();
 
-    private int duration;
     private boolean isActive = true;
 
     @CreatedDate

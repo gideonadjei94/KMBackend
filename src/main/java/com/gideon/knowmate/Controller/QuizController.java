@@ -93,4 +93,12 @@ public class QuizController {
                 .body(new ApiResponse("Success", quizzes));
     }
 
+
+    @GetMapping("/popular-quizzes")
+    public ResponseEntity<ApiResponse> getPopularQuizzes() {
+        List<QuizDto> quizzes = quizService.getPopularQuizzes();
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", quizzes));
+    }
 }

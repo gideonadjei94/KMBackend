@@ -55,7 +55,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .name(quiz.getTopic())
                 .creator(user)
                 .accessScope(request.scope())
-                .duration(request.duration())
+                .isActive(true)
                 .allowedUsers(request.users())
                 .leaderBoard(createdLeaderBoard)
                 .build();
@@ -151,9 +151,10 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     @Override
-    public ChallengeQuizDto startChallenge(String challengeId, String userId) {
+    public String startChallenge(String challengeId, String userId) {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found "));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -166,7 +167,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             throw new IllegalArgumentException("You have already taken this challenge");
         }
 
-        return quizMapper.apply(challenge.getQuiz());
+        return challenge.getQuiz().getId();
     }
 
 

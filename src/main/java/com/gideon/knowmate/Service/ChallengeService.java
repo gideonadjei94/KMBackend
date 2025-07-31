@@ -16,6 +16,6 @@ public interface ChallengeService {
     void requestAccess(String challengeId, String userId);
     void updateAccessRequest(UpdateAccessRequest request);
     ChallengeDto getChallenge(String challengeId, String userId);
-    ChallengeQuizDto startChallenge(String challengeId, String userId);
+    String startChallenge(String challengeId, String userId);
     void finishChallenge(FinishChallengeRequest request, String challengeId);
 }

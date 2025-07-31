@@ -14,9 +14,8 @@ public record ChallengeDto(
         Quiz quiz,
         LeaderBoard leaderBoard,
         Scope scope,
-        User creator,
+        UserDto creator,
         List<String> allowedUsers,
-        int duration,
         boolean isActive,
         LocalDateTime createdAt
 ) {

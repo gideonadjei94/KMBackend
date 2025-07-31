@@ -1,5 +1,10 @@
 package com.gideon.knowmate.Service;
 
-public interface UserService {
+import com.gideon.knowmate.Dto.UserDto;
 
+
+import java.util.List;
+
+public interface UserService {
+    List<UserDto> getTopCreators();
 }

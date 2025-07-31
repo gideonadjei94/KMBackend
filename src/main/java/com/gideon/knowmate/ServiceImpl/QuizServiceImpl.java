@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -163,6 +164,23 @@ public class QuizServiceImpl implements QuizService {
                 .stream()
                 .map(quizMapper)
                 .toList();
+    }
+
+
+    @Override
+    public List<QuizDto> getPopularQuizzes() {
+        List<Quiz> quizzes = quizRepository.findAll();
+        List<Quiz> sortedQuizzes = quizzes.stream()
+                .sorted((a, b) -> {
+                    long aScore = a.getLikedBy().size();
+                    long bScore = b.getLikedBy().size();
+                    return Long.compare(bScore,aScore);
+                })
+                .toList();
+        return sortedQuizzes
+                .stream()
+                .map(quizMapper)
+                .collect(Collectors.toList());
     }
 
 

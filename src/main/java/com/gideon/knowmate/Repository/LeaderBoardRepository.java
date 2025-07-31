@@ -9,6 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LeaderBoardRepository extends MongoRepository<LeaderBoard, String> {
 
-    @Query(value = "{ '_id': ?0, 'entries.username': ?1 }")
     boolean existsByIdAndEntriesUsername(String leaderBoardId, String username);
 }

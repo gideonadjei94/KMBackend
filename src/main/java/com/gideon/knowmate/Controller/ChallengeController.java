@@ -85,7 +85,7 @@ public class ChallengeController {
             @RequestParam("challengeId") String challengeId,
             @RequestParam("userId") String userId
     ){
-        ChallengeQuizDto response = service.startChallenge(challengeId, userId);
+        String response = service.startChallenge(challengeId, userId);
         return ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Success", response));
