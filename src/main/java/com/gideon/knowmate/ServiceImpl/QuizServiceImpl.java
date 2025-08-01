@@ -113,6 +113,8 @@ public class QuizServiceImpl implements QuizService {
                 .userId(request.userId())
                 .subject(request.subject())
                 .course(request.course())
+                .topic(request.topic())
+                .course(request.course())
                 .type(request.quizType())
                 .difficulty(request.difficulty())
                 .numberOfQuestions(request.numberOfQuestions())
