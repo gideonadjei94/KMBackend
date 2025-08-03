@@ -15,6 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message {
+
+    String topic;
+
     @DBRef
     private User sender;
     @DBRef

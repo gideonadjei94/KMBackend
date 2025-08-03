@@ -14,6 +14,5 @@ public interface NotificationRepository extends MongoRepository<Notification, St
     @Query("{ 'participants.id': { $all: ?0 } }")
     Optional<Notification> findByParticipantsIds(List<String> userIds);
 
-    @Query("{ 'participants.id': ?0 }")
-    List<Notification> findAllByParticipantId(String userId);
+    List<Notification> findByParticipants_Id(String userId);
 }

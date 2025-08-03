@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -111,27 +112,27 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public void updateAccessRequest(UpdateAccessRequest request) {
-        Request request1 = requestRepository.findById(request.requestId())
+        Request ChallengeRequest = requestRepository.findById(request.requestId())
                 .orElseThrow(() -> new EntityNotFoundException("Request not found"));
 
-        Challenge challenge = challengeRepository.findById(request1.getChallengeId())
+        Challenge challenge = challengeRepository.findById(ChallengeRequest.getChallengeId())
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
 
         if (request.status().equals(RequestStatus.APPROVED)){
-            challenge.getAllowedUsers().add(request1.getSender().getId());
-            request1.setStatus(request.status());
+            challenge.getAllowedUsers().add(ChallengeRequest.getSender().getId());
+            ChallengeRequest.setStatus(request.status());
 
             challengeRepository.save(challenge);
-            requestRepository.save(request1);
+            requestRepository.save(ChallengeRequest);
         }
         // send/create  a notification
             sendNotification(
                     List.of(
                             request.userId(),
-                            request1.getSender().getId()
+                            ChallengeRequest.getSender().getId()
                     ),
-                    request1.getReceiver(),
-                    request1.getSender(),
+                    ChallengeRequest.getReceiver(),
+                    ChallengeRequest.getSender(),
                     request.status(),
                     challenge.getQuiz().getTopic()
             );
@@ -208,29 +209,32 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
 
-    public void sendNotification(List<String> userIds, User sender, User receiver, RequestStatus status, String topic){
-        Optional<Notification> notification = notificationRepository.findByParticipantsIds(userIds);
-        if(notification.isEmpty()){
-            throw new EntityNotFoundException("Notification not found");
-        }
+    private void sendNotification(List<String> userIds, User sender, User receiver, RequestStatus status, String topic){
+        Notification notification = notificationRepository.findByParticipantsIds(userIds)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Notification for users %s not found", userIds)
+                ));
 
-        var existingNotification = notification.get();
-        existingNotification.setMessages(
-                List.of(
-                        new Message(
-                                sender,
-                                receiver,
-                                String.format("%s %s your request to take part in the %s challenge",
-                                        sender.getRealUserName(),
-                                        status,
-                                        topic
-                                ),
-                                LocalDateTime.now()
-                        )
-                )
+        String messageContent = String.format(
+                "%s %s your request to take part in the %s challenge",
+                sender.getRealUserName(),
+                status,
+                topic
         );
 
-        notificationRepository.save(existingNotification);
+        Message message = new Message(
+                "Request",
+                sender,
+                receiver,
+                messageContent,
+                LocalDateTime.now()
+        );
+
+        if (notification.getMessages() == null) {
+            notification.setMessages(new ArrayList<>());
+        }
+        notification.getMessages().add(message);
+        notificationRepository.save(notification);
     }
 
 

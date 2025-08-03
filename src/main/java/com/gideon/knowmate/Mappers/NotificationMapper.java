@@ -1,18 +1,21 @@
 package com.gideon.knowmate.Mappers;
 
 import com.gideon.knowmate.Dto.NotificationDto;
+import com.gideon.knowmate.Entity.Message;
 import com.gideon.knowmate.Entity.Notification;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
 @Service
-public class NotificationMapper implements Function<Notification, NotificationDto> {
+public class NotificationMapper implements Function<Message, NotificationDto> {
 
     @Override
-    public NotificationDto apply(Notification notification) {
+    public NotificationDto apply(Message message) {
         return new NotificationDto(
-                notification.getMessages()
+                message.getTopic(),
+                message.getMessage(),
+                message.getCreatedAt()
         );
     }
 }

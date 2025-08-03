@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,12 +31,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationDto> getNotifications(String userId) {
-        List<Notification> notifications = notificationRepository.findAllByParticipantId(userId);
+        List<Notification> notifications = notificationRepository.findByParticipants_Id(userId);
 
         return notifications.stream()
-                .filter(notification -> notification.getMessages().stream()
-                        .anyMatch(message ->
-                                userId.equals(message.getReceiver().getId())))
+                .flatMap(n -> n.getMessages().stream())
+                .filter(m -> userId.equals(m.getReceiver().getId()))
                 .map(notificationMapper)
                 .collect(Collectors.toList());
     }
@@ -43,50 +43,33 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(SendNotificationRequest request) {
-        Optional<Notification> notification = notificationRepository.findByParticipantsIds(List.of(request.senderId(), request.receiverId()));
-        if (notification.isPresent()){
-            Notification existingNotification = notification.get();
-            User sender = userRepository.findById(request.senderId())
-                            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User sender = userRepository.findById(request.senderId())
+                .orElseThrow(() -> new EntityNotFoundException("Sender not found"));
 
-            User receiver = userRepository.findById(request.receiverId())
-                            .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
+        User receiver = userRepository.findById(request.receiverId())
+                .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
 
-            existingNotification.setMessages(
-                    List.of(
-                            new Message(
-                                    sender,
-                                    receiver,
-                                    request.message(),
-                                    LocalDateTime.now()
-                            )
-                    )
-            );
-        }else {
-            User sender = userRepository.findById(request.senderId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Message message = new Message(
+                request.topic(),
+                sender,
+                receiver,
+                request.message(),
+                LocalDateTime.now()
+        );
 
-            User receiver = userRepository.findById(request.receiverId())
-                    .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
+        Optional<Notification> optionalNotification =
+                notificationRepository.findByParticipantsIds(List.of(request.senderId(), request.receiverId()));
+
+        if (optionalNotification.isPresent()) {
+            Notification existingNotification = optionalNotification.get();
+            existingNotification.getMessages().add(message);
+            notificationRepository.save(existingNotification);
+
+        } else {
 
             Notification newNotification = Notification.builder()
-                    .participants(
-                            List.of(
-                                    sender,
-                                    receiver
-                            )
-                    )
-                    .messages(
-                            List.of(
-                                    new Message(
-                                            sender,
-                                            receiver,
-                                            request.message(),
-                                            LocalDateTime.now()
-                                    )
-                            )
-                    )
-
+                    .participants(List.of(sender, receiver))
+                    .messages(new ArrayList<>(List.of(message)))
                     .build();
 
             notificationRepository.save(newNotification);

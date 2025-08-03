@@ -5,6 +5,7 @@ import com.gideon.knowmate.Dto.ChallengeDto;
 import com.gideon.knowmate.Dto.ChallengeQuizDto;
 import com.gideon.knowmate.Requests.CreateChallengeRequest;
 import com.gideon.knowmate.Requests.FinishChallengeRequest;
+import com.gideon.knowmate.Requests.UpdateAccessRequest;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.ChallengeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -103,5 +104,15 @@ public class ChallengeController {
                 .body(new ApiResponse("Success", null));
     }
 
+
+    @PatchMapping("/update")
+    public ResponseEntity<ApiResponse> updateAccessRequest(
+            @RequestBody UpdateAccessRequest request
+            ){
+        service.updateAccessRequest(request);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Request Updated Successfully", null));
+    }
 
 }
