@@ -14,4 +14,6 @@ public interface QuizService {
     QuizDto getQuizById(String quizId);
     List<QuizDto> getPublicQuizzes();
     List<QuizDto> getPopularQuizzes();
+
+    List<QuizDto> getAllPopularQuizzes();
 }

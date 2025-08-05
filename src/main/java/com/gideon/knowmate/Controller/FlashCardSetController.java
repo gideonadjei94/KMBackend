@@ -44,6 +44,15 @@ public class FlashCardSetController {
     }
 
 
+    @GetMapping("/all-popular-flashcard-sets")
+    public ResponseEntity<ApiResponse> getAllPopularFlashCards(){
+        List<FlashCardSetDto> response = service.getAllPopularFlashCards();
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
+    }
+
+
     @GetMapping("/get-public-sets")
     public ResponseEntity<ApiResponse> getPublicFlashCards(@RequestParam("userId") String userId){
         List<FlashCardSetDto> response = service.getPublicFlashCardSets(userId);

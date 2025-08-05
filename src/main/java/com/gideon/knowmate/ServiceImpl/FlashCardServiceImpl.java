@@ -4,7 +4,6 @@ package com.gideon.knowmate.ServiceImpl;
 
 import com.gideon.knowmate.Dto.FlashCardSetDto;
 import com.gideon.knowmate.Entity.FlashCardSet;
-import com.gideon.knowmate.Entity.User;
 import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
@@ -18,6 +17,7 @@ import com.gideon.knowmate.Utils.UtilityFunctions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,17 +54,23 @@ public class FlashCardServiceImpl implements FlashCardService {
 
     @Override
     public List<FlashCardSetDto> getPopularFlashCards() {
-        List<FlashCardSet> allSets = flashCardSetRepository.findAll();
+        List<FlashCardSet> allSets = flashCardSetRepository.findAllByAccessScope(Scope.PUBLIC);
 
-        List<FlashCardSet> sortedByPopularity = allSets.stream()
-                .sorted((a, b) -> {
-                    long aScore =UtilityFunctions.calculatePopularityScore(a);
-                    long bScore = UtilityFunctions.calculatePopularityScore(b);
-                    return Long.compare(bScore, aScore);
-                })
-                .toList();
+        return allSets.stream()
+                .sorted(Comparator.comparingLong(UtilityFunctions::calculatePopularityScore).reversed())
+                .limit(5)
+                .map(flashCardSetMapper)
+                .collect(Collectors.toList());
 
-        return sortedByPopularity.stream()
+    }
+
+
+    @Override
+    public List<FlashCardSetDto> getAllPopularFlashCards() {
+        List<FlashCardSet> allSets = flashCardSetRepository.findAllByAccessScope(Scope.PUBLIC);
+
+        return allSets.stream()
+                .sorted(Comparator.comparingLong(UtilityFunctions::calculatePopularityScore).reversed())
                 .map(flashCardSetMapper)
                 .collect(Collectors.toList());
 

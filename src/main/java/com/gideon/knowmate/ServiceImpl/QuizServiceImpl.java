@@ -6,6 +6,7 @@ import com.gideon.knowmate.Entity.Question;
 import com.gideon.knowmate.Entity.Quiz;
 import com.gideon.knowmate.Enum.QuizDifficulty;
 import com.gideon.knowmate.Enum.QuizType;
+import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Mappers.QuizMapper;
 import com.gideon.knowmate.Repository.QuizRepository;
 import com.gideon.knowmate.Requests.CreateQuizRequest;
@@ -19,8 +20,8 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,7 +163,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public List<QuizDto> getPublicQuizzes() {
-        return quizRepository.findAllByAccessScope("PUBLIC")
+        return quizRepository.findAllByAccessScope(Scope.PUBLIC)
                 .stream()
                 .map(quizMapper)
                 .toList();
@@ -171,17 +172,17 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public List<QuizDto> getPopularQuizzes() {
-        List<Quiz> quizzes = quizRepository.findAll();
-        List<Quiz> sortedQuizzes = quizzes.stream()
-                .sorted((a, b) -> {
-                    long aScore = a.getLikedBy().size();
-                    long bScore = b.getLikedBy().size();
-                    return Long.compare(bScore,aScore);
-                })
-                .toList();
-        return sortedQuizzes
-                .stream()
-                .map(quizMapper)
+        return getPublicQuizzes().stream()
+                .sorted(Comparator.comparingInt((QuizDto q) -> q.likedBy().size()).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<QuizDto> getAllPopularQuizzes() {
+        return getPublicQuizzes().stream()
+                .sorted(Comparator.comparingInt((QuizDto q) -> q.likedBy().size()).reversed())
                 .collect(Collectors.toList());
     }
 

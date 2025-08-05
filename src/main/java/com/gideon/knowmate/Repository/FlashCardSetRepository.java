@@ -21,4 +21,6 @@ public interface FlashCardSetRepository extends MongoRepository<FlashCardSet, St
 
     Optional<FlashCardSet> findAllByUserIdAndAccessScope(String userId, Scope scope);
 
+    List<FlashCardSet> findAllByAccessScope(Scope accessScope);
+
 }

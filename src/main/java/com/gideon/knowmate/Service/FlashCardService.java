@@ -12,6 +12,9 @@ import java.util.List;
 public interface FlashCardService {
     String createFlashCardSet(CreateFlashCardSetRequest request);
     List<FlashCardSetDto> getPopularFlashCards();
+
+    List<FlashCardSetDto> getAllPopularFlashCards();
+
     List<FlashCardSetDto> getFlashCardsBySubject(SubjectDomain subject);
     List<FlashCardSetDto> getFlashCardByCourse(String course);
     List<FlashCardSetDto> getUserFlashCards(String userId);

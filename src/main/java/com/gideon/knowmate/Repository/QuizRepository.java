@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Repository;
 
 import com.gideon.knowmate.Entity.Quiz;
+import com.gideon.knowmate.Enum.Scope;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +12,5 @@ import java.util.List;
 public interface QuizRepository extends MongoRepository<Quiz, String> {
     List<Quiz> findAllByUserId(String userId);
 
-    List<Quiz> findAllByAccessScope(String aPublic);
+    List<Quiz> findAllByAccessScope(Scope scope);
 }
