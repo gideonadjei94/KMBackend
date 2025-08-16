@@ -54,7 +54,7 @@ public class ChallengeController {
         ChallengeResponseDto response = service.getChallenge(challengeId, userId);
         return ResponseEntity
                 .status(OK)
-                .body(new ApiResponse(response.message(), response));
+                .body(new ApiResponse(response.message(), response.challengeDto()));
     }
 
 
