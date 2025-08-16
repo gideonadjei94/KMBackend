@@ -33,4 +33,12 @@ public class UserController {
     }
 
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getPlatformUsers(){
+        List<UserDto> users = userService.getAllUsers();
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", users));
+    }
+
 }

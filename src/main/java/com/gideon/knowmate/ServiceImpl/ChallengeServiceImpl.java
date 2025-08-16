@@ -12,6 +12,7 @@ import com.gideon.knowmate.Repository.*;
 import com.gideon.knowmate.Requests.CreateChallengeRequest;
 import com.gideon.knowmate.Requests.FinishChallengeRequest;
 import com.gideon.knowmate.Requests.UpdateAccessRequest;
+import com.gideon.knowmate.Response.ChallengeResponseDto;
 import com.gideon.knowmate.Service.ChallengeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -140,14 +141,16 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     @Override
-    public ChallengeDto getChallenge(String challengeId, String userId) {
+    public ChallengeResponseDto getChallenge(String challengeId, String userId) {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
 
-        if (challenge.getAccessScope().equals(Scope.PRIVATE) && !challenge.getAllowedUsers().contains(userId)){
-            throw  new IllegalArgumentException("You not Allowed to take the challenge request for permission");
+        String message = "Success";
+        if (challenge.getAccessScope().equals(Scope.PRIVATE) && !challenge.getAllowedUsers().contains(userId)) {
+            message = "You are not allowed to take this challenge. Please request access.";
         }
-        return mapper.apply(challenge);
+
+        return new ChallengeResponseDto(mapper.apply(challenge), message);
     }
 
 

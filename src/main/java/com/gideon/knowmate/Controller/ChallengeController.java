@@ -7,6 +7,7 @@ import com.gideon.knowmate.Requests.CreateChallengeRequest;
 import com.gideon.knowmate.Requests.FinishChallengeRequest;
 import com.gideon.knowmate.Requests.UpdateAccessRequest;
 import com.gideon.knowmate.Response.ApiResponse;
+import com.gideon.knowmate.Response.ChallengeResponseDto;
 import com.gideon.knowmate.Service.ChallengeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class ChallengeController {
             @RequestParam("challengeId") String challengeId,
             @RequestParam("userId") String userId
     ){
-        ChallengeDto response = service.getChallenge(challengeId, userId);
+        ChallengeResponseDto response = service.getChallenge(challengeId, userId);
         return ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Success", response));
