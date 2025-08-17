@@ -188,7 +188,8 @@ public class ChallengeServiceImpl implements ChallengeService {
                     List.of(
                            new LeaderBoardEntry(
                                    user.getRealUserName(),
-                                   request.score()
+                                   request.score(),
+                                   request.timeTaken()
                            )
                     )
             );

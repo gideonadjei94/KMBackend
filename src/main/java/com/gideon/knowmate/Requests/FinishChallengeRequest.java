@@ -2,6 +2,7 @@ package com.gideon.knowmate.Requests;
 
 public record FinishChallengeRequest(
         String userId,
-        String score
+        String score,
+        int timeTaken
 ) {
 }
