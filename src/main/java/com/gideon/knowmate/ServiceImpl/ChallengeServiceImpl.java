@@ -51,6 +51,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
         var leaderBoard = LeaderBoard.builder().build();
         var createdLeaderBoard = leaderBoardRepository.save(leaderBoard);
+        request.users().add(request.userId());
 
         var challenge = Challenge.builder()
                 .quiz(quiz)
@@ -170,6 +171,7 @@ public class ChallengeServiceImpl implements ChallengeService {
         if (userHasTakenChallenge){
             throw new IllegalArgumentException("You have already taken this challenge");
         }
+
 
         return challenge.getQuiz().getId();
     }
