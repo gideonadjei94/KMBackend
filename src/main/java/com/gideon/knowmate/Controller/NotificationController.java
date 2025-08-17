@@ -2,6 +2,7 @@ package com.gideon.knowmate.Controller;
 
 
 import com.gideon.knowmate.Dto.NotificationDto;
+import com.gideon.knowmate.Dto.RequestDto;
 import com.gideon.knowmate.Requests.SendNotificationRequest;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.NotificationService;
@@ -43,6 +44,17 @@ public class NotificationController {
         return  ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Notification Sent Successfully", null));
+    }
+
+
+    @GetMapping("/requests")
+    public ResponseEntity<ApiResponse> getRequests (
+            @RequestParam("userId") String userId
+    ){
+        List<RequestDto> response = notificationService.getRequests(userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
     }
 
 }

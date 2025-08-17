@@ -1,12 +1,17 @@
 package com.gideon.knowmate.ServiceImpl;
 
 import com.gideon.knowmate.Dto.NotificationDto;
+import com.gideon.knowmate.Dto.RequestDto;
 import com.gideon.knowmate.Entity.Message;
 import com.gideon.knowmate.Entity.Notification;
+import com.gideon.knowmate.Entity.Request;
 import com.gideon.knowmate.Entity.User;
+import com.gideon.knowmate.Enum.RequestStatus;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
 import com.gideon.knowmate.Mappers.NotificationMapper;
+import com.gideon.knowmate.Mappers.RequestMapper;
 import com.gideon.knowmate.Repository.NotificationRepository;
+import com.gideon.knowmate.Repository.RequestRepository;
 import com.gideon.knowmate.Repository.UserRepository;
 import com.gideon.knowmate.Requests.SendNotificationRequest;
 import com.gideon.knowmate.Service.NotificationService;
@@ -28,6 +33,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
+    private final RequestRepository requestRepository;
+    private final RequestMapper requestMapper;
 
     @Override
     public List<NotificationDto> getNotifications(String userId) {
@@ -74,5 +81,13 @@ public class NotificationServiceImpl implements NotificationService {
 
             notificationRepository.save(newNotification);
         }
+    }
+
+    @Override
+    public List<RequestDto> getRequests(String userId) {
+        return requestRepository.findAllByReceiver_IdAndStatus(userId)
+                .stream()
+                .map(requestMapper)
+                .collect(Collectors.toList());
     }
 }

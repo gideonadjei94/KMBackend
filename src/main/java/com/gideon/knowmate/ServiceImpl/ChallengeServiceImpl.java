@@ -120,13 +120,14 @@ public class ChallengeServiceImpl implements ChallengeService {
         Challenge challenge = challengeRepository.findById(ChallengeRequest.getChallengeId())
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
 
+        ChallengeRequest.setStatus(request.status());
+
         if (request.status().equals(RequestStatus.APPROVED)){
             challenge.getAllowedUsers().add(ChallengeRequest.getSender().getId());
-            ChallengeRequest.setStatus(request.status());
-
             challengeRepository.save(challenge);
-            requestRepository.save(ChallengeRequest);
         }
+
+        requestRepository.save(ChallengeRequest);
         // send/create  a notification
             sendNotification(
                     List.of(
