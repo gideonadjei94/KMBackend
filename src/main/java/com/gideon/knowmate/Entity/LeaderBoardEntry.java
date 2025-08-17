@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class LeaderBoardEntry {
     private String username;
     private String score;
-    private int timeTaken;
+    private String timeTaken;
 }
