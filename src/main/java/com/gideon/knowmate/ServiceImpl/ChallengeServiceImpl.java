@@ -101,6 +101,19 @@ public class ChallengeServiceImpl implements ChallengeService {
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        User creator = challenge.getCreator();
+
+        if (sender.getId().equals(creator.getId())) {
+            throw new IllegalArgumentException("You cannot send a request to yourself.");
+        }
+
+        boolean exists = requestRepository.existsBySenderAndReceiverAndChallengeAndStatus(
+                sender, creator, challenge, RequestStatus.PENDING
+        );
+
+        if (exists) {
+            throw new IllegalStateException("You have a pending request already for this challenge.");
+        }
 
         sendRequest(sender, challenge.getCreator(), RequestStatus.PENDING, challenge);
         var notification = Notification.builder()
@@ -207,6 +220,8 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .map(mapper)
                 .collect(Collectors.toList());
     }
+
+
 
     public void sendRequest(User sender, User receiver, RequestStatus status, Challenge challenge){
         var request = Request.builder()
