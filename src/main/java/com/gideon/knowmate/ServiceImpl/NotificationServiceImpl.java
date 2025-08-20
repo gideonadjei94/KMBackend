@@ -85,7 +85,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<RequestDto> getRequests(String userId) {
-        return requestRepository.findAllByReceiver_IdAndStatus(userId)
+        return requestRepository.findAllByReceiver_IdAndStatus(userId, RequestStatus.PENDING)
                 .stream()
                 .map(requestMapper)
                 .collect(Collectors.toList());
