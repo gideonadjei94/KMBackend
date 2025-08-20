@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification, String> {
 
-    @Query("{ 'participants.id': { $all: ?0 } }")
+    @Query("{ 'participants.$id': { $all: ?0 } }")
     Optional<Notification> findByParticipantsIds(List<String> userIds);
 
     List<Notification> findByParticipants_Id(String userId);
