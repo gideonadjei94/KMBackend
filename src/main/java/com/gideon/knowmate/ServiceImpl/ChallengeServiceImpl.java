@@ -107,8 +107,8 @@ public class ChallengeServiceImpl implements ChallengeService {
             throw new IllegalArgumentException("You cannot send a request to yourself.");
         }
 
-        boolean exists = requestRepository.existsBySenderAndReceiverAndChallengeAndStatus(
-                sender, creator, challenge, RequestStatus.PENDING
+        boolean exists = requestRepository.existsBySenderAndReceiverAndChallengeIdAndStatus(
+                sender, creator, challenge.getId(), RequestStatus.PENDING
         );
 
         if (exists) {

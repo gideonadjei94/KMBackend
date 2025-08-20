@@ -14,5 +14,5 @@ public interface RequestRepository extends MongoRepository<Request, String> {
 
     List<Request> findAllByReceiver_IdAndStatus(String userId, RequestStatus status);
 
-    boolean existsBySenderAndReceiverAndChallengeAndStatus(User sender, User creator, Challenge challenge, RequestStatus requestStatus);
+    boolean existsBySenderAndReceiverAndChallengeIdAndStatus(User sender, User creator, String challengeId, RequestStatus requestStatus);
 }
