@@ -17,4 +17,6 @@ public interface ChallengeService {
     ChallengeResponseDto getChallenge(String challengeId, String userId);
     String startChallenge(String challengeId, String userId);
     void finishChallenge(FinishChallengeRequest request, String challengeId);
+
+    List<ChallengeDto> getUserChallenges(String userId);
 }

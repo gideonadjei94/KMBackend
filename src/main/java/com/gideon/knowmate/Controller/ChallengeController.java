@@ -37,6 +37,17 @@ public class ChallengeController {
     }
 
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getUserChallenges(
+            @RequestParam("userId") String userId
+    ){
+        List<ChallengeDto> response = service.getUserChallenges(userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Success", response));
+    }
+
+
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createChallenge(@RequestBody CreateChallengeRequest request){
         String challengeId = service.createChallenge(request);

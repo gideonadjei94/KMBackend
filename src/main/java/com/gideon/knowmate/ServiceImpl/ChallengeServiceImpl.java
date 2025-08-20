@@ -1,7 +1,6 @@
 package com.gideon.knowmate.ServiceImpl;
 
 import com.gideon.knowmate.Dto.ChallengeDto;
-import com.gideon.knowmate.Dto.ChallengeQuizDto;
 import com.gideon.knowmate.Entity.*;
 import com.gideon.knowmate.Enum.RequestStatus;
 import com.gideon.knowmate.Enum.Scope;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -200,6 +198,15 @@ public class ChallengeServiceImpl implements ChallengeService {
         leaderBoardRepository.save(leaderBoard);
     }
 
+
+    @Override
+    public List<ChallengeDto> getUserChallenges(String userId){
+        return challengeRepository.findAll()
+                .stream()
+                .filter(c -> userId.equals(c.getCreator().getId()))
+                .map(mapper)
+                .collect(Collectors.toList());
+    }
 
     public void sendRequest(User sender, User receiver, RequestStatus status, Challenge challenge){
         var request = Request.builder()
