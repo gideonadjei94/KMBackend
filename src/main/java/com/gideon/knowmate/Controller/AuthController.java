@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -58,6 +60,18 @@ public class AuthController {
                     .status(OK)
                     .body(new ApiResponse("Login Successful", response));
 
+    }
+
+
+    @PostMapping("/google-authenticate")
+    public ResponseEntity<ApiResponse> googleAuthenticate(
+            @RequestBody Map<String, String> body
+    ) throws Exception {
+        String code = body.get("code");
+        AuthenticationResponse response = authService.googleAuthenticate(code);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("User Logged In Successfully", response));
     }
 
 

@@ -1,8 +1,10 @@
 package com.gideon.knowmate.Entity;
 
+import com.gideon.knowmate.Enum.AuthDomain;
 import com.gideon.knowmate.Enum.UserDomain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -36,6 +38,10 @@ public class User implements UserDetails{
     private String password;
 
     private UserDomain userRole;
+
+    private String profileImageUrl;
+
+    private AuthDomain authProvider;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

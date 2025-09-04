@@ -1,6 +1,8 @@
 package com.gideon.knowmate.Controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gideon.knowmate.Dto.FlashCardSetDto;
 import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
@@ -10,8 +12,10 @@ import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.FlashCardService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,6 +29,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class FlashCardSetController {
 
     private final FlashCardService service;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addFlashCardSet(@RequestBody CreateFlashCardSetRequest request){
@@ -32,6 +37,22 @@ public class FlashCardSetController {
         return ResponseEntity
                 .status(CREATED)
                 .body(new ApiResponse("FlashCard set Created Successfully", setId));
+    }
+
+
+    @PostMapping(
+            value = "/generate-ai",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ApiResponse> generateFlashCardWithAi(
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart("data") String flashCardJson) throws JsonProcessingException {
+        CreateFlashCardSetRequest request = objectMapper.readValue(flashCardJson, CreateFlashCardSetRequest.class);
+        String flashCardSetId = service.generateFlashCardSet(file, request);
+
+        return ResponseEntity
+                .status(CREATED)
+                .body(new ApiResponse("Flashcard Created Successfully", flashCardSetId));
     }
 
 

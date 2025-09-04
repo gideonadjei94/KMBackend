@@ -25,4 +25,34 @@ public class UtilityFunctions {
     }
 
 
+    public static CharSequence generateRandomPassword() {
+        String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lower = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String specialChars = "!@#$%^&*()-_=+[]{}|;:,.<>?";
+
+        String allChars = upper + lower + digits + specialChars;
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        password.append(upper.charAt(random.nextInt(upper.length())));
+        password.append(lower.charAt(random.nextInt(lower.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
+
+
+        for (int i = 4; i < 12; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        char[] pwdArray = password.toString().toCharArray();
+        for (int i = 0; i < pwdArray.length; i++) {
+            int randomIndex = random.nextInt(pwdArray.length);
+            char temp = pwdArray[i];
+            pwdArray[i] = pwdArray[randomIndex];
+            pwdArray[randomIndex] = temp;
+        }
+
+        return new String(pwdArray);
+    }
 }

@@ -2,6 +2,7 @@ package com.gideon.knowmate.ServiceImpl;
 
 import com.gideon.knowmate.Entity.OTPVerificationSess;
 import com.gideon.knowmate.Entity.User;
+import com.gideon.knowmate.Enum.AuthDomain;
 import com.gideon.knowmate.Enum.UserDomain;
 import com.gideon.knowmate.Exceptions.EntityAlreadyExists;
 import com.gideon.knowmate.Exceptions.EntityNotFoundException;
@@ -15,10 +16,18 @@ import com.gideon.knowmate.Security.JwtService;
 import com.gideon.knowmate.Service.AuthService;
 import com.gideon.knowmate.Service.EmailService;
 import com.gideon.knowmate.Utils.UtilityFunctions;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,9 +38,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -47,9 +59,15 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
+    @Value("${GoogleClientID}")
+    private String GoogleClientId;
+
+    @Value("${GoogleClientSecret}")
+    private String GoogleClientSecret;
+
     @Override
     public void register(RegisterUserRequest request) throws MessagingException {
-        Optional<User> emailExists = userRepo.findByEmail(request.email());
+        Optional<User> emailExists = userRepo.findByEmailAndAuthProvider(request.email(), AuthDomain.LOCAL);
         Optional<User> userNameExists = userRepo.findByUsername(request.username());
         if (emailExists.isPresent()){
             throw new EntityAlreadyExists("User Already Exists with this Email");
@@ -91,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
                         .email(session.getEmail())
                         .password(session.getPassword())
                         .userRole(session.getUserRole())
+                        .authProvider(AuthDomain.LOCAL)
                         .build();
 
                 User newUser = userRepo.save(user);
@@ -98,11 +117,14 @@ public class AuthServiceImpl implements AuthService {
                 var refreshToken = jwtService.generateRefreshToken(user, session.getUserRole());
                 otpVerificationSessRepo.deleteByEmail(session.getEmail());
 
+
+
                 return new AuthenticationResponse(
                         jwtToken,
                         newUser.getId(),
                         newUser.getRealUserName(),
                         newUser.getEmail(),
+                        newUser.getProfileImageUrl(),
                         refreshToken
                 );
             }
@@ -135,6 +157,7 @@ public class AuthServiceImpl implements AuthService {
                     existingUser.getId(),
                     existingUser.getRealUserName(),
                     existingUser.getEmail(),
+                    existingUser.getProfileImageUrl(),
                     refreshToken
             );
         }
@@ -172,6 +195,7 @@ public class AuthServiceImpl implements AuthService {
                 existingUser.getId(),
                 existingUser.getRealUserName(),
                 existingUser.getEmail(),
+                existingUser.getProfileImageUrl(),
                 refreshToken
         );
     }
@@ -220,5 +244,62 @@ public class AuthServiceImpl implements AuthService {
         }
 
         throw new EntityNotFoundException("User not found");
+    }
+
+
+
+    @Override
+    public AuthenticationResponse googleAuthenticate(String code) throws GeneralSecurityException, IOException {
+        GoogleTokenResponse tokenResponse =
+                new GoogleAuthorizationCodeTokenRequest(
+                        new NetHttpTransport(),
+                        JacksonFactory.getDefaultInstance(),
+                        "https://oauth2.googleapis.com/token",
+                        GoogleClientId,
+                        GoogleClientSecret,
+                        code,
+                        "http://localhost:5173"
+                ).execute();
+
+        String idToken = tokenResponse.getIdToken();
+
+        GoogleIdToken googleIdToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(), idToken);
+        GoogleIdToken.Payload payload = googleIdToken.getPayload();
+
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+        String pictureUrl = (String) payload.get("picture");
+
+
+        User user = userRepo.findByEmailAndAuthProvider(email, AuthDomain.GOOGLE)
+                .orElseGet(() -> userRepo.save(
+                        User.builder()
+                                .email(email)
+                                .username(name)
+                                .userRole(UserDomain.STUDENT)
+                                .password(passwordEncoder.encode(UtilityFunctions.generateRandomPassword()))
+                                .authProvider(AuthDomain.GOOGLE)
+                                .profileImageUrl(pictureUrl)
+                                .build()
+                ));
+
+
+
+        return buildAuthResponse(user);
+    }
+
+
+    private AuthenticationResponse buildAuthResponse(User user) {
+        String jwtToken = jwtService.generateJwtToken(user, user.getUserRole());
+        String refreshToken = jwtService.generateRefreshToken(user, user.getUserRole());
+
+        return new AuthenticationResponse(
+                jwtToken,
+                user.getId(),
+                user.getRealUserName(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                refreshToken
+        );
     }
 }

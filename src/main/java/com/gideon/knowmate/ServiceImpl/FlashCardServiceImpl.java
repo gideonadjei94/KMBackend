@@ -2,7 +2,9 @@ package com.gideon.knowmate.ServiceImpl;
 
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gideon.knowmate.Dto.FlashCardSetDto;
+import com.gideon.knowmate.Entity.FlashCard;
 import com.gideon.knowmate.Entity.FlashCardSet;
 import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
@@ -13,10 +15,16 @@ import com.gideon.knowmate.Repository.UserRepository;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
 import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
 import com.gideon.knowmate.Service.FlashCardService;
+import com.gideon.knowmate.Utils.FileExtractor;
 import com.gideon.knowmate.Utils.UtilityFunctions;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +37,9 @@ public class FlashCardServiceImpl implements FlashCardService {
     private final FlashCardSetRepository flashCardSetRepository;
     private final FlashCardSetMapper flashCardSetMapper;
     private final UserRepository userRepository;
+    private final FileExtractor fileExtractor;
+    private final ObjectMapper objectMapper;
+    private final OpenAiChatClient openAiChatClient;
 
 
     @Override
@@ -279,4 +290,73 @@ public class FlashCardServiceImpl implements FlashCardService {
         var updatedSet = flashCardSetRepository.save(set);
         return flashCardSetMapper.apply(updatedSet);
     }
+
+
+    @Override
+    public String generateFlashCardSet(MultipartFile file, CreateFlashCardSetRequest request) {
+        if (request.title() == null || request.title().isEmpty()) {
+            throw new IllegalArgumentException("Title of flashcard set must be provided");
+        }
+
+        String extractedContent;
+
+        if (file != null && !file.isEmpty()) {
+            extractedContent = "Generate detailed,self explanatory, " +
+                    "exam likely concepts with real world examples" +
+                    " flashcards for a student studying for an exam based on this study material content: " + fileExtractor.extractText(file);
+        }
+        else {
+            extractedContent = String.format(
+                    "Generate detailed,self explanatory, exam likely concepts with real world examples" +
+                            " flashcards for a student studying for an exam based on the following details:\n" +
+                            "Title: %s\n" +
+                            "Subject: %s\n" +
+                            "Course: %s\n" +
+                            "Description: %s",
+                    request.title(),
+                    request.subjectDomain(),
+                    request.course(),
+                    request.description()
+            );
+        }
+
+
+        String promptText = extractedContent
+                + "\nRespond ONLY in valid JSON array format. "
+                + "Each flashcard must have: 'term', 'definition', and 'imageUrl'. "
+                + "Set 'imageUrl' to null if no image is applicable. "
+                + "Example: [{\"term\":\"Polymorphism\",\"definition\":\"Ability of an object to take many forms.\",\"imageUrl\":null}]";
+
+        Prompt aiPrompt = new Prompt(
+                String.valueOf(new OpenAiApi.ChatCompletionMessage(promptText, OpenAiApi.ChatCompletionMessage.Role.USER))
+        );
+
+        String aiResponse = openAiChatClient.call(aiPrompt).getResult().getOutput().getContent();
+
+        List<FlashCard> flashCards;
+        try {
+            flashCards = Arrays.asList(objectMapper.readValue(aiResponse, FlashCard[].class));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse AI response into flashcards: " + e.getMessage(), e);
+        }
+
+        if (flashCards.isEmpty()) {
+            throw new IllegalStateException("AI did not generate any flashcards from provided content");
+        }
+
+        FlashCardSet flashCardSet = FlashCardSet.builder()
+                .userId(request.userId())
+                .username(request.username())
+                .title(request.title())
+                .description(request.description())
+                .subjectDomain(request.subjectDomain())
+                .course(request.course())
+                .accessScope(request.accessScope())
+                .flashCardList(flashCards)
+                .build();
+
+        FlashCardSet savedSet = flashCardSetRepository.save(flashCardSet);
+        return savedSet.getId();
+    }
+
 }

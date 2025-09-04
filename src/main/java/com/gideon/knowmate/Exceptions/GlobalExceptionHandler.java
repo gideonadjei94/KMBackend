@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +68,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleMessagingException(Exception ex){
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(new ApiResponse(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse> handleIOException(Exception ex){
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(new ApiResponse(ex.getMessage(), null));
+    }
+
+
+    @ExceptionHandler(GeneralSecurityException.class)
+    public ResponseEntity<ApiResponse> handleGeneralSecurityException(Exception ex){
         return ResponseEntity
                 .status(BAD_REQUEST)
                 .body(new ApiResponse(ex.getMessage(), null));

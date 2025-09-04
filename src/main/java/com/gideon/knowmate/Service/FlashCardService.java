@@ -6,6 +6,7 @@ import com.gideon.knowmate.Enum.Scope;
 import com.gideon.knowmate.Enum.SubjectDomain;
 import com.gideon.knowmate.Requests.CreateFlashCardSetRequest;
 import com.gideon.knowmate.Requests.UpdateFlashCardSetRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,4 +30,6 @@ public interface FlashCardService {
     List<FlashCardSetDto> getSavedFlashCardSets(String userId);
     List<FlashCardSetDto> getPublicFlashCardSets(String userId);
     FlashCardSetDto changeFlashCardAccessScope(String setId, Scope scope);
+
+    String generateFlashCardSet(MultipartFile file, CreateFlashCardSetRequest request);
 }

@@ -5,6 +5,7 @@ public record AuthenticationResponse(
         String userId,
         String username,
         String email,
+        String profileImageUrl,
         String refresh_token
 ) {
 }
