@@ -139,10 +139,10 @@ public class FlashCardServiceImpl implements FlashCardService {
     public void deleteFlashCardSet(String setId) {
         Optional<FlashCardSet> set = flashCardSetRepository.findById(setId);
         if (set.isPresent()){
-            flashCardSetRepository.deleteById(setId);
+             flashCardSetRepository.deleteById(setId);
+        }else {
+            throw new EntityNotFoundException("FlashCardSet not found");
         }
-
-        throw new EntityNotFoundException("FlashCardSet not found");
     }
 
 
@@ -301,13 +301,13 @@ public class FlashCardServiceImpl implements FlashCardService {
         String extractedContent;
 
         if (file != null && !file.isEmpty()) {
-            extractedContent = "Generate detailed,self explanatory, " +
+            extractedContent = "Generate not less than 10 detailed,self explanatory, " +
                     "exam likely concepts with real world examples" +
                     " flashcards for a student studying for an exam based on this study material content: " + fileExtractor.extractText(file);
         }
         else {
             extractedContent = String.format(
-                    "Generate detailed,self explanatory, exam likely concepts with real world examples" +
+                    "Generate not less than 10 detailed,self explanatory, exam likely concepts with real world examples" +
                             " flashcards for a student studying for an exam based on the following details:\n" +
                             "Title: %s\n" +
                             "Subject: %s\n" +
