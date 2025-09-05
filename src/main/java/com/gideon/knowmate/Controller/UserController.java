@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Controller;
 
 
+import com.gideon.knowmate.Dto.TopCreatorDto;
 import com.gideon.knowmate.Dto.UserDto;
 import com.gideon.knowmate.Response.ApiResponse;
 import com.gideon.knowmate.Service.UserService;
@@ -26,7 +27,7 @@ public class UserController {
 
     @GetMapping("/top-creators")
     public ResponseEntity<ApiResponse> getTopCreators(){
-        List<UserDto> users = userService.getTopCreators();
+        List<TopCreatorDto> users = userService.getTopCreators();
         return ResponseEntity
                 .status(OK)
                 .body(new ApiResponse("Success", users));
