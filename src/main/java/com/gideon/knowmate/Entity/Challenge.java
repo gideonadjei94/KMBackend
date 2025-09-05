@@ -24,7 +24,7 @@ public class Challenge {
     private String id;
     private String name;
 
-    @DBRef
+
     private Quiz quiz;
 
     @DBRef
