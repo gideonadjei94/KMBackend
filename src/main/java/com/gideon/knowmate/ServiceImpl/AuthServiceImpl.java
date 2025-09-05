@@ -258,7 +258,7 @@ public class AuthServiceImpl implements AuthService {
                         GoogleClientId,
                         GoogleClientSecret,
                         code,
-                        "http://localhost:5173"
+                        "https://knowmate.onrender.com"
                 ).execute();
 
         String idToken = tokenResponse.getIdToken();
