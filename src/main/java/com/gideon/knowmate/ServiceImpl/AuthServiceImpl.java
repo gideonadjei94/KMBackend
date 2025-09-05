@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(RegisterUserRequest request) throws MessagingException {
-        Optional<User> emailExists = userRepo.findByEmailAndAuthProvider(request.email(), AuthDomain.LOCAL);
+        Optional<User> emailExists = userRepo.findByEmail(request.email());
         Optional<User> userNameExists = userRepo.findByUsername(request.username());
         if (emailExists.isPresent()){
             throw new EntityAlreadyExists("User Already Exists with this Email");
@@ -271,22 +271,47 @@ public class AuthServiceImpl implements AuthService {
         String pictureUrl = (String) payload.get("picture");
 
 
-        User user = userRepo.findByEmailAndAuthProvider(email, AuthDomain.GOOGLE)
-                .orElseGet(() -> userRepo.save(
-                        User.builder()
-                                .email(email)
-                                .username(name)
-                                .userRole(UserDomain.STUDENT)
-                                .password(passwordEncoder.encode(UtilityFunctions.generateRandomPassword()))
-                                .authProvider(AuthDomain.GOOGLE)
-                                .profileImageUrl(pictureUrl)
-                                .build()
-                ));
+        Optional<User> existingUserOpt = userRepo.findByEmail(email);
 
+        User user;
+        if (existingUserOpt.isPresent()) {
+            user = existingUserOpt.get();
 
+            if (user.getAuthProvider() == AuthDomain.GOOGLE) {
+                user.setUsername(name);
+                user.setProfileImageUrl(pictureUrl);
+                userRepo.save(user);
+
+            } else if (user.getAuthProvider() == null || user.getAuthProvider() == AuthDomain.LOCAL) {
+
+                user.setUsername(name);
+                user.setProfileImageUrl(pictureUrl);
+                user.setAuthProvider(AuthDomain.GOOGLE);
+                userRepo.save(user);
+
+            } else {
+                throw new IllegalStateException(
+                        "This email is already registered with a different login provider: " + user.getAuthProvider()
+                );
+            }
+
+        } else {
+
+            user = userRepo.save(
+                    User.builder()
+                            .email(email)
+                            .username(name)
+                            .userRole(UserDomain.STUDENT)
+                            .password(passwordEncoder.encode(UtilityFunctions.generateRandomPassword()))
+                            .authProvider(AuthDomain.GOOGLE)
+                            .profileImageUrl(pictureUrl)
+                            .build()
+            );
+        }
 
         return buildAuthResponse(user);
     }
+
 
 
     private AuthenticationResponse buildAuthResponse(User user) {
