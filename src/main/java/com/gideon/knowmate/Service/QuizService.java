@@ -16,4 +16,6 @@ public interface QuizService {
     List<QuizDto> getPopularQuizzes();
 
     List<QuizDto> getAllPopularQuizzes();
+
+    void deleteQuiz(String quizId, String userId);
 }

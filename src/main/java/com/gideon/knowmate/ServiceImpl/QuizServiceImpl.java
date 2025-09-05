@@ -187,6 +187,19 @@ public class QuizServiceImpl implements QuizService {
     }
 
 
+    @Override
+    public void deleteQuiz(String quizId, String userId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new IllegalArgumentException("Quiz not found"));
+
+        if (!quiz.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You do not have permission to delete this quiz");
+        }
+
+        quizRepository.delete(quiz);
+    }
+
+
     private Prompt getPrompt(CreateQuizRequest request, String extractedContent) {
         if (extractedContent == null || extractedContent.isBlank()) {
             throw new IllegalArgumentException("Failed to extract content from file");

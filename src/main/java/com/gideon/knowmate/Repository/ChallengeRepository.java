@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ChallengeRepository extends MongoRepository<Challenge, String> {
+    void deleteByIsActiveFalse();
 }

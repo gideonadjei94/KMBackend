@@ -110,4 +110,16 @@ public class QuizController {
                 .status(OK)
                 .body(new ApiResponse("Success", quizzes));
     }
+
+
+    @DeleteMapping("/quiz")
+    public ResponseEntity<ApiResponse> deleteQuiz(
+            @RequestParam("quizId") String quizId,
+            @RequestParam("userId") String userId
+    ) {
+        quizService.deleteQuiz(quizId, userId);
+        return ResponseEntity
+                .status(OK)
+                .body(new ApiResponse("Quiz Deleted Successfully", null));
+    }
 }

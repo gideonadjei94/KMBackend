@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Utils;
 
 import com.gideon.knowmate.Entity.OTPVerificationSess;
+import com.gideon.knowmate.Repository.ChallengeRepository;
 import com.gideon.knowmate.Repository.OTPVerificationSessRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +15,7 @@ import java.util.List;
 public class Schedulers {
 
     private final OTPVerificationSessRepo otpVerificationSessRepo;
+    private final ChallengeRepository challengeRepository;
 
     @Scheduled(cron = "0 0 * * * *")
     public void deleteExpiredOTPSessions(){
@@ -22,5 +24,11 @@ public class Schedulers {
         if(!expiredSessions.isEmpty()){
             otpVerificationSessRepo.deleteAll(expiredSessions);
         }
+    }
+
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteInactiveChallenges(){
+        challengeRepository.deleteByIsActiveFalse();
     }
 }
