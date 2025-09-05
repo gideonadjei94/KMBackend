@@ -125,62 +125,30 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public void updateAccessRequest(UpdateAccessRequest request) {
-        if (request.requestId() == null || request.requestId().isBlank()) {
-            throw new IllegalArgumentException("requestId is required");
-        }
-
-        Request challengeRequest = requestRepository.findById(request.requestId())
+        Request ChallengeRequest = requestRepository.findById(request.requestId())
                 .orElseThrow(() -> new EntityNotFoundException("Request not found"));
 
-        String challengeId = challengeRequest.getChallengeId();
-        if (challengeId == null || challengeId.isBlank()) {
-            throw new IllegalStateException("Request has no challengeId set");
-        }
-
-        Challenge challenge = challengeRepository.findById(challengeId)
+        Challenge challenge = challengeRepository.findById(ChallengeRequest.getChallengeId())
                 .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
 
-        challengeRequest.setStatus(request.status());
+        ChallengeRequest.setStatus(request.status());
 
-        if (request.status() == RequestStatus.APPROVED) {
-            if (challenge.getAllowedUsers() == null) challenge.setAllowedUsers(new ArrayList<>());
-            challenge.getAllowedUsers().add(challengeRequest.getSender().getId());
+        if (request.status().equals(RequestStatus.APPROVED)){
+            challenge.getAllowedUsers().add(ChallengeRequest.getSender().getId());
             challengeRepository.save(challenge);
         }
 
-        requestRepository.save(challengeRequest);
-
-        sendNotification(
-                List.of(request.userId(), challengeRequest.getSender().getId()),
-                challengeRequest.getReceiver(),
-                challengeRequest.getSender(),
-                request.status(),
-                challenge.getQuiz().getTopic()
-        );
-//        Request ChallengeRequest = requestRepository.findById(request.requestId())
-//                .orElseThrow(() -> new EntityNotFoundException("Request not found"));
-//
-//        Challenge challenge = challengeRepository.findById(ChallengeRequest.getChallengeId())
-//                .orElseThrow(() -> new EntityNotFoundException("Challenge not found"));
-//
-//        ChallengeRequest.setStatus(request.status());
-//
-//        if (request.status().equals(RequestStatus.APPROVED)){
-//            challenge.getAllowedUsers().add(ChallengeRequest.getSender().getId());
-//            challengeRepository.save(challenge);
-//        }
-//
-//        requestRepository.save(ChallengeRequest);
-//            sendNotification(
-//                    List.of(
-//                            request.userId(),
-//                            ChallengeRequest.getSender().getId()
-//                    ),
-//                    ChallengeRequest.getReceiver(),
-//                    ChallengeRequest.getSender(),
-//                    request.status(),
-//                    challenge.getQuiz().getTopic()
-//            );
+        requestRepository.save(ChallengeRequest);
+            sendNotification(
+                    List.of(
+                            request.userId(),
+                            ChallengeRequest.getSender().getId()
+                    ),
+                    ChallengeRequest.getReceiver(),
+                    ChallengeRequest.getSender(),
+                    request.status(),
+                    challenge.getQuiz().getTopic()
+            );
     }
 
 
@@ -259,6 +227,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .sender(sender)
                 .receiver(receiver)
                 .status(status)
+                .challengeId(challenge.getId())
                 .message(String.format(
                         "%s wants to take part in the %s challenge",
                         sender.getRealUserName(),
@@ -267,6 +236,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .build();
         requestRepository.save(request);
     }
+
 
 
     private void sendNotification(List<String> userIds, User sender, User receiver, RequestStatus status, String topic){
