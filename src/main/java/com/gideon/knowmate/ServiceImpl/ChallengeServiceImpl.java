@@ -198,15 +198,17 @@ public class ChallengeServiceImpl implements ChallengeService {
 
             LeaderBoard leaderBoard = leaderBoardRepository.findById(challenge.getLeaderBoard().getId())
                             .orElseThrow(() -> new EntityNotFoundException("LeaderBoard not found"));
-            leaderBoard.setEntries(
-                    List.of(
-                           new LeaderBoardEntry(
-                                   user.getRealUserName(),
-                                   request.score(),
-                                   request.timeTaken()
-                           )
+
+            List<LeaderBoardEntry> entries = new ArrayList<>(leaderBoard.getEntries());
+
+            entries.add(
+                    new LeaderBoardEntry(
+                            user.getRealUserName(),
+                            request.score(),
+                            request.timeTaken()
                     )
             );
+            leaderBoard.setEntries(entries);
 
         leaderBoardRepository.save(leaderBoard);
     }
