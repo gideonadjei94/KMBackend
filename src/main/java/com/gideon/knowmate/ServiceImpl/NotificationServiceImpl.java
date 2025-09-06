@@ -17,6 +17,7 @@ import com.gideon.knowmate.Requests.SendNotificationRequest;
 import com.gideon.knowmate.Service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -65,7 +66,10 @@ public class NotificationServiceImpl implements NotificationService {
         );
 
         Optional<Notification> optionalNotification =
-                notificationRepository.findByParticipantsIds(List.of(request.senderId(), request.receiverId()));
+                notificationRepository.findByParticipantsIds(List.of(
+                        new ObjectId(request.senderId()),
+                        new ObjectId(request.receiverId())
+                ));
 
         if (optionalNotification.isPresent()) {
             Notification existingNotification = optionalNotification.get();
