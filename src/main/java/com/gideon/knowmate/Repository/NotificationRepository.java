@@ -1,6 +1,7 @@
 package com.gideon.knowmate.Repository;
 
 import com.gideon.knowmate.Entity.Notification;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public interface NotificationRepository extends MongoRepository<Notification, String> {
 
     @Query("{ 'participants._id': { $all: ?0 } }")
-    Optional<Notification> findByParticipantsIds(List<String> userIds);
+    Optional<Notification> findByParticipantsIds(List<ObjectId> userIds);
 
     List<Notification> findByParticipants_Id(String userId);
 }

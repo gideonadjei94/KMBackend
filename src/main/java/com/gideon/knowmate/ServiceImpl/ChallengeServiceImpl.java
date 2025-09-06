@@ -14,6 +14,7 @@ import com.gideon.knowmate.Requests.UpdateAccessRequest;
 import com.gideon.knowmate.Response.ChallengeResponseDto;
 import com.gideon.knowmate.Service.ChallengeService;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 
@@ -240,7 +241,11 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 
     private void sendNotification(List<String> userIds, User sender, User receiver, RequestStatus status, String topic){
-        Notification notification = notificationRepository.findByParticipantsIds(userIds)
+        List<ObjectId> ids = userIds.stream()
+                .map(ObjectId::new)
+                .toList();
+
+        Notification notification = notificationRepository.findByParticipantsIds(ids)
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format("Notification for users %s not found", userIds)
                 ));
